@@ -50,24 +50,19 @@ export function enableClosingConfirmation() {
 
 // Сохранение/загрузка рекордов через Telegram CloudStorage
 export function cloudSaveScore(score) {
-  if (!tg?.CloudStorage) return;
-  tg.CloudStorage.setItem('highscore', score.toString(), (err) => {
-    if (err) console.warn('CloudStorage save error:', err);
-  });
+  try {
+    if (!tg?.CloudStorage) return;
+    tg.CloudStorage.setItem('highscore', score.toString(), () => {});
+  } catch (e) { /* CloudStorage unsupported */ }
 }
 
 export function cloudLoadScore(callback) {
-  if (!tg?.CloudStorage) {
-    callback(0);
-    return;
-  }
-  tg.CloudStorage.getItem('highscore', (err, value) => {
-    if (err || !value) {
-      callback(0);
-      return;
-    }
-    callback(parseInt(value, 10) || 0);
-  });
+  try {
+    if (!tg?.CloudStorage) { callback(0); return; }
+    tg.CloudStorage.getItem('highscore', (err, value) => {
+      callback((!err && value) ? (parseInt(value, 10) || 0) : 0);
+    });
+  } catch (e) { callback(0); }
 }
 
 // Haptic feedback
