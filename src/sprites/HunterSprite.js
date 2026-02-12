@@ -1,6 +1,12 @@
 import { SpriteFactory } from './SpriteFactory.js';
 
+const HUNTER_SCALE = 0.625;
+
 export class HunterSprite extends SpriteFactory {
+  _ct(key, w, h, drawFn) {
+    this.createTexture(key, w, h, drawFn, HUNTER_SCALE);
+  }
+
   generate() {
     this._generateIdleFrames();
     this._generateWalkFrames();
@@ -344,7 +350,7 @@ export class HunterSprite extends SpriteFactory {
 
   _generateIdleFrames() {
     // Frame 0: normal standing, small smoke
-    this.createTexture('hunter_idle_0', 80, 108, (ctx) => {
+    this._ct('hunter_idle_0', 80, 108, (ctx) => {
       this._drawBoots(ctx, 18, 44);
       this._drawLegs(ctx, 22, 44);
       this._drawBelt(ctx);
@@ -356,7 +362,7 @@ export class HunterSprite extends SpriteFactory {
     });
 
     // Frame 1: breathing (slightly expanded chest), larger smoke puff
-    this.createTexture('hunter_idle_1', 80, 108, (ctx) => {
+    this._ct('hunter_idle_1', 80, 108, (ctx) => {
       this._drawBoots(ctx, 18, 44);
       this._drawLegs(ctx, 22, 44);
       this._drawBelt(ctx);
@@ -370,7 +376,7 @@ export class HunterSprite extends SpriteFactory {
 
   _generateWalkFrames() {
     // Frame 0: left leg forward, right back, arms swinging
-    this.createTexture('hunter_walk_0', 80, 108, (ctx) => {
+    this._ct('hunter_walk_0', 80, 108, (ctx) => {
       this._drawBoots(ctx, 14, 48);
       this._drawLegs(ctx, 18, 48);
       this._drawBelt(ctx);
@@ -382,7 +388,7 @@ export class HunterSprite extends SpriteFactory {
     });
 
     // Frame 1: legs centered
-    this.createTexture('hunter_walk_1', 80, 108, (ctx) => {
+    this._ct('hunter_walk_1', 80, 108, (ctx) => {
       this._drawBoots(ctx, 18, 44);
       this._drawLegs(ctx, 22, 44);
       this._drawBelt(ctx);
@@ -394,7 +400,7 @@ export class HunterSprite extends SpriteFactory {
     });
 
     // Frame 2: right leg forward, left back
-    this.createTexture('hunter_walk_2', 80, 108, (ctx) => {
+    this._ct('hunter_walk_2', 80, 108, (ctx) => {
       this._drawBoots(ctx, 22, 40);
       this._drawLegs(ctx, 26, 40);
       this._drawBelt(ctx);
@@ -408,7 +414,7 @@ export class HunterSprite extends SpriteFactory {
 
   _generateShootFrames() {
     // Frame 0: arms raising to aim
-    this.createTexture('hunter_shoot_0', 80, 108, (ctx) => {
+    this._ct('hunter_shoot_0', 80, 108, (ctx) => {
       this._drawBoots(ctx, 16, 46);
       this._drawLegs(ctx, 20, 46);
       this._drawBelt(ctx);
@@ -420,7 +426,7 @@ export class HunterSprite extends SpriteFactory {
     });
 
     // Frame 1: recoil — fully extended, squinting
-    this.createTexture('hunter_shoot_1', 80, 108, (ctx) => {
+    this._ct('hunter_shoot_1', 80, 108, (ctx) => {
       this._drawBoots(ctx, 16, 46);
       this._drawLegs(ctx, 20, 46);
       this._drawBelt(ctx);
@@ -432,7 +438,7 @@ export class HunterSprite extends SpriteFactory {
     });
 
     // Frame 2: recovering from recoil
-    this.createTexture('hunter_shoot_2', 80, 108, (ctx) => {
+    this._ct('hunter_shoot_2', 80, 108, (ctx) => {
       this._drawBoots(ctx, 17, 45);
       this._drawLegs(ctx, 21, 45);
       this._drawBelt(ctx);

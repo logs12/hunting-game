@@ -3,11 +3,13 @@ export class SpriteFactory {
     this.scene = scene;
   }
 
-  createTexture(key, width, height, drawFn) {
+  createTexture(key, width, height, drawFn, scale) {
+    const s = scale || 1;
     const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = Math.round(width * s);
+    canvas.height = Math.round(height * s);
     const ctx = canvas.getContext('2d');
+    if (s !== 1) ctx.scale(s, s);
     drawFn(ctx, width, height);
     this.scene.textures.addCanvas(key, canvas);
   }

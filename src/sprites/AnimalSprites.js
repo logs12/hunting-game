@@ -1,7 +1,13 @@
 import { SpriteFactory } from './SpriteFactory.js';
 import { ANIMALS } from '../constants.js';
 
+const ANIMAL_SCALE = 0.62;
+
 export class AnimalSprites extends SpriteFactory {
+  _ct(key, w, h, drawFn) {
+    this.createTexture(key, w, h, drawFn, ANIMAL_SCALE);
+  }
+
   generate() {
     this._generateRabbitFrames();
     this._generateFoxFrames();
@@ -140,7 +146,7 @@ export class AnimalSprites extends SpriteFactory {
     ];
 
     legSets.forEach(([legs, bodyOff], i) => {
-      this.createTexture(`rabbit_walk_${i}`, 48, 48, (ctx) => {
+      this._ct(`rabbit_walk_${i}`, 48, 48, (ctx) => {
         ctx.save();
         ctx.translate(0, bodyOff);
         this._drawRabbitBody(ctx);
@@ -248,7 +254,7 @@ export class AnimalSprites extends SpriteFactory {
     ];
 
     frames.forEach((legs, i) => {
-      this.createTexture(`fox_walk_${i}`, 68, 54, (ctx) => {
+      this._ct(`fox_walk_${i}`, 68, 54, (ctx) => {
         // Legs first (behind body)
         ctx.fillStyle = '#cc5500';
         legs.forEach(([ly], idx) => {
@@ -346,7 +352,7 @@ export class AnimalSprites extends SpriteFactory {
     ];
 
     frames.forEach((legs, i) => {
-      this.createTexture(`deer_walk_${i}`, 80, 80, (ctx) => {
+      this._ct(`deer_walk_${i}`, 80, 80, (ctx) => {
         const legColor = '#886633';
         const hoofColor = '#333';
         const xPositions = [30, 38, 52, 60];
@@ -432,7 +438,7 @@ export class AnimalSprites extends SpriteFactory {
     ];
 
     frames.forEach(([legYs], i) => {
-      this.createTexture(`boar_walk_${i}`, 74, 60, (ctx) => {
+      this._ct(`boar_walk_${i}`, 74, 60, (ctx) => {
         const xPositions = [28, 38, 50, 58];
         legYs.forEach((ly, idx) => {
           ctx.fillStyle = '#443322';
@@ -503,7 +509,7 @@ export class AnimalSprites extends SpriteFactory {
     ];
 
     frames.forEach((legYs, i) => {
-      this.createTexture(`wolf_walk_${i}`, 74, 58, (ctx) => {
+      this._ct(`wolf_walk_${i}`, 74, 58, (ctx) => {
         const xPositions = [28, 36, 50, 58];
         legYs.forEach((ly, idx) => {
           ctx.fillStyle = '#667788';
@@ -569,7 +575,7 @@ export class AnimalSprites extends SpriteFactory {
     ];
 
     frames.forEach((legYs, i) => {
-      this.createTexture(`bear_walk_${i}`, 100, 94, (ctx) => {
+      this._ct(`bear_walk_${i}`, 100, 94, (ctx) => {
         const xPositions = [30, 46, 66, 80];
         legYs.forEach((ly, idx) => {
           const legGrad = ctx.createLinearGradient(0, ly, 0, ly + 22);
@@ -643,7 +649,7 @@ export class AnimalSprites extends SpriteFactory {
     ];
 
     wingAngles.forEach(({ upY, downY }, i) => {
-      this.createTexture(`eagle_walk_${i}`, 60, 38, (ctx) => {
+      this._ct(`eagle_walk_${i}`, 60, 38, (ctx) => {
         // Upper wing
         ctx.fillStyle = '#5A3828';
         ctx.beginPath();
@@ -685,7 +691,7 @@ export class AnimalSprites extends SpriteFactory {
     // 3 frames with different body wave phase
     [0, 1, 2].forEach(i => {
       const phaseOff = i * 0.7;
-      this.createTexture(`snake_walk_${i}`, 54, 16, (ctx) => {
+      this._ct(`snake_walk_${i}`, 54, 16, (ctx) => {
         const bodyW = 3.5;
         const wave = (x) => 8 + Math.sin((x * 0.35) + phaseOff) * 3;
 
@@ -836,7 +842,7 @@ export class AnimalSprites extends SpriteFactory {
     ];
 
     frames.forEach((legYs, i) => {
-      this.createTexture(`moose_walk_${i}`, 94, 88, (ctx) => {
+      this._ct(`moose_walk_${i}`, 94, 88, (ctx) => {
         const xPositions = [32, 42, 62, 72];
         const legColor = '#5B3216';
         const shinColor = '#4B2206';
@@ -920,7 +926,7 @@ export class AnimalSprites extends SpriteFactory {
     // Wing flap for flying pheasant: 0=level, 1=up, 2=down
     // Also animate legs for when on ground
     [0, 1, 2].forEach(i => {
-      this.createTexture(`pheasant_walk_${i}`, 50, 34, (ctx) => {
+      this._ct(`pheasant_walk_${i}`, 50, 34, (ctx) => {
         // Legs with different positions
         const legOff = [0, -2, 2][i];
         ctx.fillStyle = '#9B7924';

@@ -8,13 +8,13 @@ export class Hunter {
     this.sprite.setOrigin(0.5, 0.5);
     this.sprite.setDepth(10);
     this.shooting = false;
-    this.currentWeapon = 'pistol';
+    this.currentWeapon = 'slingshot';
     this.targetY = this.sprite.y;
     this.lerpSpeed = 12;
     this.state = 'idle';
 
     // Weapon sprite — separate object, changes with weapon switch
-    this.weaponSprite = scene.add.sprite(0, 0, 'weapon_pistol');
+    this.weaponSprite = scene.add.sprite(0, 0, 'weapon_slingshot');
     this.weaponSprite.setOrigin(0, 0.5);
     this.weaponSprite.setDepth(11);
     this._updateWeaponPos();
@@ -81,10 +81,10 @@ export class Hunter {
 
   _updateWeaponPos() {
     if (this.shooting) {
-      this.weaponSprite.x = this.sprite.x + 37;
-      this.weaponSprite.y = this.sprite.y - 16;
+      this.weaponSprite.x = this.sprite.x + 23;
+      this.weaponSprite.y = this.sprite.y - 10;
     } else {
-      this.weaponSprite.x = this.sprite.x + 27;
+      this.weaponSprite.x = this.sprite.x + 17;
       this.weaponSprite.y = this.sprite.y;
     }
   }

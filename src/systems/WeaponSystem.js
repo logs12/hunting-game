@@ -5,8 +5,8 @@ import { haptic } from '../telegram.js';
 export class WeaponSystem {
   constructor(scene) {
     this.scene = scene;
-    this.currentWeapon = 'pistol';
-    this.unlockedWeapons = ['pistol'];
+    this.currentWeapon = 'slingshot';
+    this.unlockedWeapons = ['slingshot', 'pistol'];
     this.lastFireTime = 0;
     this.projectiles = scene.physics.add.group();
   }

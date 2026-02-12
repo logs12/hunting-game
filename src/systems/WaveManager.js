@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
-import { GAME } from '../constants.js';
+import { GAME, DIFFICULTY, ANIMALS } from '../constants.js';
 import { AnimalTypes } from '../entities/AnimalTypes.js';
+import { Animal } from '../entities/Animal.js';
 
 export class WaveManager {
   constructor(scene) {
@@ -23,8 +24,7 @@ export class WaveManager {
 
       if (this.onWaveStart) this.onWaveStart(this.currentWave);
 
-      // Spawn rate decreases with wave progression
-      const baseDelay = Math.max(600, 2000 - this.currentWave * 100);
+      const baseDelay = DIFFICULTY.spawnDelay(this.currentWave);
 
       this.spawnTimer = this.scene.time.addEvent({
         delay: baseDelay,
@@ -32,11 +32,11 @@ export class WaveManager {
         loop: true,
       });
 
-      // Spawn first animal immediately
       this._spawnAnimal();
 
-      // Wave duration
-      this.waveTimer = this.scene.time.delayedCall(GAME.WAVE_DURATION, () => {
+      // Wave duration grows over time
+      const duration = GAME.WAVE_DURATION + Math.floor(this.currentWave / 3) * 2000;
+      this.waveTimer = this.scene.time.delayedCall(duration, () => {
         this.endWave();
       });
     } catch (e) {
@@ -49,12 +49,62 @@ export class WaveManager {
     if (!this.waveActive) return;
 
     try {
-      const animal = AnimalTypes.spawn(this.scene, this.currentWave);
-      this.animals.add(animal);
-      animal.activatePhysics();
+      // Group spawning from wave 3+
+      if (this.currentWave >= 3 && Math.random() < DIFFICULTY.groupChance(this.currentWave)) {
+        this._spawnGroup();
+      } else {
+        this._spawnSingle();
+      }
     } catch (e) {
       this.lastError = 'spawn: ' + e.message;
       console.error('Spawn error:', e);
+    }
+  }
+
+  _spawnSingle() {
+    const animal = AnimalTypes.spawn(this.scene, this.currentWave);
+    this.animals.add(animal);
+    animal.activatePhysics();
+  }
+
+  _spawnGroup() {
+    const type = AnimalTypes.getWeightedRandom(this.currentWave);
+    const config = ANIMALS[type];
+    const size = DIFFICULTY.groupSize(this.currentWave);
+    const formation = config.formation || 'spread';
+
+    for (let i = 0; i < size; i++) {
+      this.scene.time.delayedCall(i * 200, () => {
+        if (!this.waveActive) return;
+        try {
+          const animal = new Animal(this.scene, type, this.currentWave);
+
+          // Apply formation offsets
+          if (formation === 'v' && i > 0) {
+            // V-formation: progressive Y offset
+            const side = i % 2 === 0 ? 1 : -1;
+            const row = Math.ceil(i / 2);
+            animal.y += side * row * 25;
+            animal.x += row * 30;
+          } else if (formation === 'pack') {
+            // Pack: tight cluster with random offsets
+            animal.y += Phaser.Math.Between(-20, 20);
+            animal.x += Phaser.Math.Between(0, 40);
+          } else if (formation === 'stampede') {
+            // Stampede: line formation
+            animal.x += i * 40;
+          } else {
+            // Default spread
+            animal.y += Phaser.Math.Between(-30, 30);
+            animal.x += i * 25;
+          }
+
+          this.animals.add(animal);
+          animal.activatePhysics();
+        } catch (e) {
+          console.error('Group spawn error:', e);
+        }
+      });
     }
   }
 
@@ -67,7 +117,6 @@ export class WaveManager {
   }
 
   update() {
-    // Check animals reaching the left edge
     this.animals.getChildren().forEach((animal) => {
       if (animal.active && animal.alive && animal.x < -10) {
         if (this.onAnimalEscaped) this.onAnimalEscaped(animal);

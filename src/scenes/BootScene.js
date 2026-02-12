@@ -1,6 +1,11 @@
 import Phaser from 'phaser';
 import { HunterSprite } from '../sprites/HunterSprite.js';
 import { AnimalSprites } from '../sprites/AnimalSprites.js';
+import { AnimalSpritesT1 } from '../sprites/AnimalSpritesT1.js';
+import { AnimalSpritesT2 } from '../sprites/AnimalSpritesT2.js';
+import { AnimalSpritesT3 } from '../sprites/AnimalSpritesT3.js';
+import { AnimalSpritesT4 } from '../sprites/AnimalSpritesT4.js';
+import { AnimalSpritesT5 } from '../sprites/AnimalSpritesT5.js';
 import { WeaponSprites } from '../sprites/WeaponSprites.js';
 import { EffectSprites } from '../sprites/EffectSprites.js';
 import { GAME, ANIMALS } from '../constants.js';
@@ -11,7 +16,6 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
-    // Loading text
     const text = this.add.text(GAME.WIDTH / 2, GAME.HEIGHT / 2, 'Loading...', {
       fontSize: '24px',
       fontFamily: 'Arial',
@@ -19,17 +23,34 @@ export class BootScene extends Phaser.Scene {
     });
     text.setOrigin(0.5);
 
-    // Only generate sprites and animations on first boot
     if (!this.textures.exists('hunter_idle_0')) {
       new HunterSprite(this).generate();
       new WeaponSprites(this).generate();
       new EffectSprites(this).generate();
       new AnimalSprites(this).generate();
+      new AnimalSpritesT1(this).generate();
+      new AnimalSpritesT2(this).generate();
+      new AnimalSpritesT3(this).generate();
+      new AnimalSpritesT4(this).generate();
+      new AnimalSpritesT5(this).generate();
 
       // Register walk animations for all animals
       const frameRates = {
         rabbit: 10, fox: 9, deer: 7, boar: 10, wolf: 11,
         bear: 5, eagle: 6, snake: 8, moose: 5, pheasant: 10,
+        // Tier 1
+        sparrow: 12, mouse: 14, frog: 6,
+        // Tier 2
+        duck: 8, crow: 10, hare: 12, raccoon: 8, turkey: 6, badger: 7,
+        // Tier 3
+        lynx: 10, hawk: 8, coyote: 11, goose: 7, porcupine: 5,
+        wolverine: 9, owl: 7, ram: 7,
+        // Tier 4
+        tiger: 8, bison: 5, condor: 6, panther: 10, elk: 5,
+        vulture: 6, alligator: 6,
+        // Tier 5
+        rhino: 7, hippo: 4, gorilla: 6, golden_eagle: 7,
+        mammoth: 4, dragon: 6,
       };
       for (const key of Object.keys(ANIMALS)) {
         this.anims.create({
@@ -72,13 +93,11 @@ export class BootScene extends Phaser.Scene {
       });
     }
 
-    // Always regenerate background (dimensions may change on orientation switch)
     if (this.textures.exists('background')) {
       this.textures.remove('background');
     }
     this._generateBackground();
 
-    // Proceed to menu
     this.time.delayedCall(200, () => {
       this.scene.start('Menu');
     });
@@ -94,21 +113,18 @@ export class BootScene extends Phaser.Scene {
 
     const gRatio = GAME.GROUND_TOP / H;
 
-    // Sky gradient
     const skyGrad = ctx.createLinearGradient(0, 0, 0, GAME.GROUND_TOP);
     skyGrad.addColorStop(0, '#4a90d9');
     skyGrad.addColorStop(1, '#87CEEB');
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, W, GAME.GROUND_TOP);
 
-    // Clouds (proportional positions)
     ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
     this._drawCloud(ctx, W * 0.14, 40, 30);
     this._drawCloud(ctx, W * 0.50, 60, 25);
     this._drawCloud(ctx, W * 0.78, 30, 28);
     this._drawCloud(ctx, W * 0.33, 90, 20);
 
-    // Mountains (far) — proportional X positions
     ctx.fillStyle = '#6b8e7b';
     ctx.beginPath();
     ctx.moveTo(0, H * (gRatio * 0.85));
@@ -122,7 +138,6 @@ export class BootScene extends Phaser.Scene {
     ctx.lineTo(0, GAME.GROUND_TOP);
     ctx.fill();
 
-    // Hills (near) — proportional X positions
     ctx.fillStyle = '#5a9e3e';
     ctx.beginPath();
     ctx.moveTo(0, H * (gRatio * 0.95));
@@ -132,14 +147,12 @@ export class BootScene extends Phaser.Scene {
     ctx.lineTo(0, GAME.GROUND_TOP);
     ctx.fill();
 
-    // Ground
     const groundGrad = ctx.createLinearGradient(0, GAME.GROUND_TOP, 0, H);
     groundGrad.addColorStop(0, '#4a7a2e');
     groundGrad.addColorStop(1, '#3a6a1e');
     ctx.fillStyle = groundGrad;
     ctx.fillRect(0, GAME.GROUND_TOP, W, H - GAME.GROUND_TOP);
 
-    // Grass tufts
     ctx.strokeStyle = '#5a9a3e';
     ctx.lineWidth = 2;
     for (let i = 0; i < 40; i++) {

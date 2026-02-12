@@ -149,13 +149,14 @@ export class GameScene extends Phaser.Scene {
     const time = this.time.now;
     if (!this.weaponSystem.canFire(time)) return;
 
+    const cfg = WEAPONS[this.weaponSystem.currentWeapon];
+    const shootDur = cfg.burstCount ? cfg.burstCount * cfg.burstDelay + 100 : 150;
+    this.hunter.shoot(shootDur);
+
     const muzzle = this.hunter.getMuzzlePosition();
     const projectiles = this.weaponSystem.fire(muzzle.x, muzzle.y, GAME.WIDTH + 100, muzzle.y, time);
 
     if (projectiles.length > 0) {
-      const cfg = WEAPONS[this.weaponSystem.currentWeapon];
-      const shootDur = cfg.burstCount ? cfg.burstCount * cfg.burstDelay + 100 : 150;
-      this.hunter.shoot(shootDur);
       this.effects.muzzleFlash(muzzle.x, muzzle.y);
       this.soundManager.playShot(this.weaponSystem.currentWeapon);
     }
@@ -185,13 +186,16 @@ export class GameScene extends Phaser.Scene {
   _onHit(projectile, animal) {
     if (!animal.alive) return;
 
-    const isRocket = projectile.weaponKey === 'rocket';
     const x = projectile.x;
     const y = projectile.y;
+    const hasAoE = projectile.aoe > 0;
 
-    projectile.destroy();
+    // Piercing projectiles don't get destroyed
+    if (!projectile.piercing) {
+      projectile.destroy();
+    }
 
-    if (isRocket) {
+    if (hasAoE) {
       this.effects.explosion(x, y);
       haptic('explosion');
       this.soundManager.playExplosion();
