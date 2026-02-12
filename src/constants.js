@@ -6,9 +6,26 @@ export const GAME = {
   WAVE_PAUSE: 3000,
   COMBO_TIMEOUT: 2000,
   MAX_COMBO: 5,
-  GROUND_TOP: 430,     // верхняя граница земли (линия перехода холмы→трава)
-  GROUND_BOTTOM: 580,  // нижняя граница (над HUD)
+  GROUND_TOP: 280,
+  GROUND_BOTTOM: 580,
+  FLYING_MIN_Y: 260,
+  FLYING_MAX_Y: 400,
 };
+
+export const LAYOUTS = {
+  portrait:  { width: 360, height: 640, groundTop: 280, groundBottom: 580, flyingMinY: 260, flyingMaxY: 400 },
+  landscape: { width: 640, height: 360, groundTop: 160, groundBottom: 320, flyingMinY: 140, flyingMaxY: 240 },
+};
+
+export function applyLayout(orientation) {
+  const l = LAYOUTS[orientation] || LAYOUTS.portrait;
+  GAME.WIDTH = l.width;
+  GAME.HEIGHT = l.height;
+  GAME.GROUND_TOP = l.groundTop;
+  GAME.GROUND_BOTTOM = l.groundBottom;
+  GAME.FLYING_MIN_Y = l.flyingMinY;
+  GAME.FLYING_MAX_Y = l.flyingMaxY;
+}
 
 export const ANIMALS = {
   rabbit: { name: 'Кролик', hp: 1, speed: 180, points: 10, color: 0xaaaaaa, minWave: 1 },
@@ -24,10 +41,10 @@ export const ANIMALS = {
 };
 
 export const WEAPONS = {
-  pistol:   { name: 'Пистолет',  damage: 1,  cooldown: 500,  unlock: 0,    spread: 0, projectiles: 1, aoe: 0, barrelOffsetY: -2 },
-  shotgun:  { name: 'Дробовик',  damage: 1,  cooldown: 900,  unlock: 50,   spread: 15, projectiles: 5, aoe: 0, barrelOffsetY: -2 },
-  rifle:    { name: 'Винтовка',  damage: 4,  cooldown: 700,  unlock: 200,  spread: 0, projectiles: 1, aoe: 0, barrelOffsetY: -3 },
-  machinegun:{ name: 'Пулемет', damage: 1,  cooldown: 400,  unlock: 500,  spread: 5, projectiles: 1, aoe: 0, burstCount: 3, burstDelay: 50, barrelOffsetY: -4 },
+  pistol:   { name: 'Пистолет',  damage: 1,  cooldown: 500,  unlock: 0,    spread: 0, projectiles: 1, aoe: 0, barrelOffsetY: -3 },
+  shotgun:  { name: 'Дробовик',  damage: 1,  cooldown: 900,  unlock: 50,   spread: 15, projectiles: 5, aoe: 0, barrelOffsetY: -3 },
+  rifle:    { name: 'Винтовка',  damage: 4,  cooldown: 700,  unlock: 200,  spread: 0, projectiles: 1, aoe: 0, barrelOffsetY: -4 },
+  machinegun:{ name: 'Пулемет', damage: 1,  cooldown: 400,  unlock: 500,  spread: 5, projectiles: 1, aoe: 0, burstCount: 3, burstDelay: 50, barrelOffsetY: -5 },
   rocket:   { name: 'Ракетница', damage: 10, cooldown: 1500, unlock: 1000, spread: 0, projectiles: 1, aoe: 80, barrelOffsetY: 0 },
 };
 

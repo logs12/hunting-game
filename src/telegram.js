@@ -9,7 +9,8 @@ export function initTelegram() {
   const safeTry = (fn) => { try { fn(); } catch (e) { /* unsupported in this client */ } };
 
   safeTry(() => tg.requestFullscreen());
-  safeTry(() => tg.lockOrientation());
+  // Allow rotation — landscape is supported
+  // safeTry(() => tg.lockOrientation());
   safeTry(() => tg.disableVerticalSwipes());
   safeTry(() => tg.enableClosingConfirmation());
 }

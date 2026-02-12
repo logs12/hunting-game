@@ -8,15 +8,19 @@ export class MenuScene extends Phaser.Scene {
   }
 
   create() {
+    const W = GAME.WIDTH;
+    const H = GAME.HEIGHT;
+    const fs = (size) => `${Math.min(size, Math.floor(H * size / 640))}px`;
+
     // Background
-    this.add.image(GAME.WIDTH / 2, GAME.HEIGHT / 2, 'background');
+    this.add.image(W / 2, H / 2, 'background');
 
     // Dim overlay
-    this.add.rectangle(GAME.WIDTH / 2, GAME.HEIGHT / 2, GAME.WIDTH, GAME.HEIGHT, 0x000000, 0.4);
+    this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.4);
 
     // Title
-    const title = this.add.text(GAME.WIDTH / 2, 120, 'HUNTING\nGAME', {
-      fontSize: '52px',
+    const title = this.add.text(W / 2, H * 0.15, 'HUNTING\nGAME', {
+      fontSize: fs(52),
       fontFamily: 'Arial',
       color: '#ffffff',
       fontStyle: 'bold',
@@ -28,8 +32,8 @@ export class MenuScene extends Phaser.Scene {
 
     // Greeting
     const name = getUserName();
-    const greeting = this.add.text(GAME.WIDTH / 2, 220, `Welcome, ${name}!`, {
-      fontSize: '20px',
+    const greeting = this.add.text(W / 2, H * 0.34, `Welcome, ${name}!`, {
+      fontSize: fs(20),
       fontFamily: 'Arial',
       color: '#ffdd00',
       stroke: '#000000',
@@ -38,14 +42,14 @@ export class MenuScene extends Phaser.Scene {
     greeting.setOrigin(0.5);
 
     // Hunter preview
-    const hunter = this.add.sprite(GAME.WIDTH / 2, 320, 'hunter');
-    hunter.setScale(2);
+    const hunter = this.add.sprite(W / 2, H * 0.50, 'hunter_idle_0');
+    hunter.setScale(H > 400 ? 1.2 : 0.8);
 
     // High score
     const highScore = parseInt(localStorage.getItem('huntingGameHighScore') || '0', 10);
     if (highScore > 0) {
-      const hs = this.add.text(GAME.WIDTH / 2, 400, `Best: ${highScore}`, {
-        fontSize: '18px',
+      const hs = this.add.text(W / 2, H * 0.64, `Best: ${highScore}`, {
+        fontSize: fs(18),
         fontFamily: 'Arial',
         color: '#aaddff',
         stroke: '#000000',
@@ -55,12 +59,12 @@ export class MenuScene extends Phaser.Scene {
     }
 
     // Play button
-    const btnBg = this.add.rectangle(GAME.WIDTH / 2, 480, 200, 60, 0x44aa44, 1);
+    const btnBg = this.add.rectangle(W / 2, H * 0.75, 200, 60, 0x44aa44, 1);
     btnBg.setStrokeStyle(3, 0x228822);
     btnBg.setInteractive({ useHandCursor: true });
 
-    const btnText = this.add.text(GAME.WIDTH / 2, 480, 'PLAY', {
-      fontSize: '32px',
+    const btnText = this.add.text(W / 2, H * 0.75, 'PLAY', {
+      fontSize: fs(32),
       fontFamily: 'Arial',
       color: '#ffffff',
       fontStyle: 'bold',
@@ -83,8 +87,8 @@ export class MenuScene extends Phaser.Scene {
     });
 
     // Instructions
-    const instr = this.add.text(GAME.WIDTH / 2, 560, 'Tap to shoot!\nDon\'t let animals escape!', {
-      fontSize: '14px',
+    const instr = this.add.text(W / 2, H * 0.90, 'Tap to shoot!\nDon\'t let animals escape!', {
+      fontSize: fs(14),
       fontFamily: 'Arial',
       color: '#cccccc',
       stroke: '#000000',

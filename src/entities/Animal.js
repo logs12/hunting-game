@@ -6,7 +6,7 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
     const config = ANIMALS[type];
     const y = Phaser.Math.Between(GAME.GROUND_TOP, GAME.GROUND_BOTTOM);
 
-    super(scene, GAME.WIDTH + 30, y, type);
+    super(scene, GAME.WIDTH + 30, y, `${type}_walk_0`);
 
     scene.add.existing(this);
     // НЕ вызываем scene.physics.add.existing — группа сама создаст body
@@ -32,8 +32,11 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
 
     // Flying animals start in sky zone
     if (this.config.flying) {
-      this.y = Phaser.Math.Between(GAME.GROUND_TOP - 80, GAME.GROUND_TOP - 20);
+      this.y = Phaser.Math.Between(GAME.FLYING_MIN_Y, GAME.FLYING_MAX_Y);
     }
+
+    // Start walk animation
+    this.play(`${this.animalType}_walk`);
 
     this._initBehavior(this.scene);
   }
@@ -166,11 +169,13 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
 
     this.hp -= amount;
     this.hurtTimer = 150;
-    this.setTexture(`${this.animalType}_hurt`);
+    this.setTint(0xff4444);
+    this.anims.pause();
 
     this.scene.time.delayedCall(150, () => {
       if (this.active && this.alive) {
-        this.setTexture(this.animalType);
+        this.clearTint();
+        this.anims.resume();
       }
     });
 
@@ -184,6 +189,8 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
   die() {
     this.alive = false;
     this.body.setVelocity(0, 0);
+    this.anims.stop();
+    this.clearTint();
     this._cleanTimers();
 
     // Death animation - fall and fade
@@ -221,7 +228,7 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
     super.preUpdate(time, delta);
 
     // Flying animals can go above GROUND_TOP
-    const minY = this.config.flying ? GAME.GROUND_TOP - 100 : GAME.GROUND_TOP;
+    const minY = this.config.flying ? GAME.FLYING_MIN_Y : GAME.GROUND_TOP;
     const maxY = GAME.GROUND_BOTTOM;
 
     if (this.y < minY) {

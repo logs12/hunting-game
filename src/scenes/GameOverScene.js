@@ -15,18 +15,21 @@ export class GameOverScene extends Phaser.Scene {
   }
 
   create() {
-    // На экране Game Over можно закрыть без подтверждения
     disableClosingConfirmation();
 
+    const W = GAME.WIDTH;
+    const H = GAME.HEIGHT;
+    const fs = (size) => `${Math.min(size, Math.floor(H * size / 640))}px`;
+
     // Background
-    this.add.image(GAME.WIDTH / 2, GAME.HEIGHT / 2, 'background').setDepth(0);
+    this.add.image(W / 2, H / 2, 'background').setDepth(0);
 
     // Dark overlay
-    this.add.rectangle(GAME.WIDTH / 2, GAME.HEIGHT / 2, GAME.WIDTH, GAME.HEIGHT, 0x000000, 0.6);
+    this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.6);
 
     // Game Over title
-    const title = this.add.text(GAME.WIDTH / 2, 120, 'GAME OVER', {
-      fontSize: '48px',
+    const title = this.add.text(W / 2, H * 0.15, 'GAME OVER', {
+      fontSize: fs(48),
       fontFamily: 'Arial',
       color: '#ff3333',
       fontStyle: 'bold',
@@ -36,8 +39,8 @@ export class GameOverScene extends Phaser.Scene {
     title.setOrigin(0.5);
 
     // Score
-    const scoreText = this.add.text(GAME.WIDTH / 2, 220, `Score: ${this.finalScore}`, {
-      fontSize: '32px',
+    const scoreText = this.add.text(W / 2, H * 0.30, `Score: ${this.finalScore}`, {
+      fontSize: fs(32),
       fontFamily: 'Arial',
       color: '#ffffff',
       fontStyle: 'bold',
@@ -47,8 +50,8 @@ export class GameOverScene extends Phaser.Scene {
     scoreText.setOrigin(0.5);
 
     // Wave reached
-    const waveText = this.add.text(GAME.WIDTH / 2, 270, `Wave: ${this.finalWave}`, {
-      fontSize: '24px',
+    const waveText = this.add.text(W / 2, H * 0.40, `Wave: ${this.finalWave}`, {
+      fontSize: fs(24),
       fontFamily: 'Arial',
       color: '#aaddff',
       stroke: '#000000',
@@ -58,8 +61,8 @@ export class GameOverScene extends Phaser.Scene {
 
     // New record
     if (this.isNewRecord) {
-      const record = this.add.text(GAME.WIDTH / 2, 320, 'NEW RECORD!', {
-        fontSize: '28px',
+      const record = this.add.text(W / 2, H * 0.50, 'NEW RECORD!', {
+        fontSize: fs(28),
         fontFamily: 'Arial',
         color: '#ffdd00',
         fontStyle: 'bold',
@@ -77,8 +80,8 @@ export class GameOverScene extends Phaser.Scene {
         repeat: -1,
       });
     } else {
-      const best = this.add.text(GAME.WIDTH / 2, 320, `Best: ${this.highScore}`, {
-        fontSize: '20px',
+      const best = this.add.text(W / 2, H * 0.50, `Best: ${this.highScore}`, {
+        fontSize: fs(20),
         fontFamily: 'Arial',
         color: '#888888',
         stroke: '#000000',
@@ -88,12 +91,12 @@ export class GameOverScene extends Phaser.Scene {
     }
 
     // Retry button
-    const btnBg = this.add.rectangle(GAME.WIDTH / 2, 430, 200, 60, 0xdd4444, 1);
+    const btnBg = this.add.rectangle(W / 2, H * 0.67, 200, 60, 0xdd4444, 1);
     btnBg.setStrokeStyle(3, 0xaa2222);
     btnBg.setInteractive({ useHandCursor: true });
 
-    const btnText = this.add.text(GAME.WIDTH / 2, 430, 'RETRY', {
-      fontSize: '28px',
+    const btnText = this.add.text(W / 2, H * 0.67, 'RETRY', {
+      fontSize: fs(28),
       fontFamily: 'Arial',
       color: '#ffffff',
       fontStyle: 'bold',
@@ -115,12 +118,12 @@ export class GameOverScene extends Phaser.Scene {
     });
 
     // Menu button
-    const menuBg = this.add.rectangle(GAME.WIDTH / 2, 520, 200, 50, 0x555555, 1);
+    const menuBg = this.add.rectangle(W / 2, H * 0.81, 200, 50, 0x555555, 1);
     menuBg.setStrokeStyle(2, 0x333333);
     menuBg.setInteractive({ useHandCursor: true });
 
-    const menuText = this.add.text(GAME.WIDTH / 2, 520, 'MENU', {
-      fontSize: '22px',
+    const menuText = this.add.text(W / 2, H * 0.81, 'MENU', {
+      fontSize: fs(22),
       fontFamily: 'Arial',
       color: '#ffffff',
     });
