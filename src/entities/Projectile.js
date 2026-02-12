@@ -6,6 +6,8 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
     const config = WEAPONS[weaponKey];
     const textureKey = weaponKey === 'rocket' ? 'rocket_proj'
       : weaponKey === 'shotgun' ? 'pellet'
+      : weaponKey === 'rifle' ? 'rifle_bullet'
+      : weaponKey === 'machinegun' ? 'mg_bullet'
       : 'bullet';
 
     super(scene, x, y, textureKey);

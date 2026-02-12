@@ -1,4 +1,5 @@
-import { GAME } from '../constants.js';
+import Phaser from 'phaser';
+import { GAME, WEAPONS } from '../constants.js';
 
 export class Hunter {
   constructor(scene) {
@@ -7,6 +8,9 @@ export class Hunter {
     this.sprite.setOrigin(0.5, 0.5);
     this.sprite.setDepth(10);
     this.shooting = false;
+    this.currentWeapon = 'pistol';
+    this.targetY = this.sprite.y;
+    this.lerpSpeed = 12;
 
     // Weapon sprite — отдельный объект, меняется при смене оружия
     this.weaponSprite = scene.add.sprite(0, 0, 'weapon_pistol');
@@ -16,16 +20,21 @@ export class Hunter {
   }
 
   setWeapon(key) {
+    this.currentWeapon = key;
     this.weaponSprite.setTexture('weapon_' + key);
   }
 
-  moveTo(y) {
-    this.sprite.y = Math.max(GAME.GROUND_TOP, Math.min(GAME.GROUND_BOTTOM, y));
-    this._updateWeaponPos();
+  setTargetY(y) {
+    this.targetY = Math.max(GAME.GROUND_TOP, Math.min(GAME.GROUND_BOTTOM, y));
   }
 
   moveBy(dy) {
-    this.sprite.y = Math.max(GAME.GROUND_TOP, Math.min(GAME.GROUND_BOTTOM, this.sprite.y + dy));
+    this.targetY = Math.max(GAME.GROUND_TOP, Math.min(GAME.GROUND_BOTTOM, this.targetY + dy));
+  }
+
+  update(delta) {
+    const t = 1 - Math.exp(-this.lerpSpeed * delta / 1000);
+    this.sprite.y = Phaser.Math.Linear(this.sprite.y, this.targetY, t);
     this._updateWeaponPos();
   }
 
@@ -44,9 +53,10 @@ export class Hunter {
   }
 
   getMuzzlePosition() {
+    const cfg = WEAPONS[this.currentWeapon];
     return {
       x: this.weaponSprite.x + this.weaponSprite.width,
-      y: this.weaponSprite.y,
+      y: this.weaponSprite.y + (cfg.barrelOffsetY || 0),
     };
   }
 

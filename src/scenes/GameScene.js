@@ -7,6 +7,7 @@ import { ScoreManager } from '../systems/ScoreManager.js';
 import { EffectsManager } from '../systems/EffectsManager.js';
 import { HUD } from '../ui/HUD.js';
 import { TouchControls } from '../ui/TouchControls.js';
+import { SoundManager } from '../systems/SoundManager.js';
 import { haptic, onVisibilityChange, enableClosingConfirmation } from '../telegram.js';
 
 export class GameScene extends Phaser.Scene {
@@ -29,7 +30,14 @@ export class GameScene extends Phaser.Scene {
     this.waveManager = new WaveManager(this);
     this.scoreManager = new ScoreManager();
     this.effects = new EffectsManager(this);
-    this.hud = new HUD(this);
+    this.soundManager = new SoundManager();
+    this.hud = new HUD(this, {
+      onPause: () => this._togglePause(),
+      onToggleMute: () => {
+        const muted = this.soundManager.toggleMute();
+        this.hud.updateMuteButton(muted);
+      },
+    });
 
     // Линия прицела
     this.aimLine = this.add.graphics();
@@ -45,6 +53,7 @@ export class GameScene extends Phaser.Scene {
       try {
         this.hud.updateWave(wave);
         this.effects.waveAnnouncement(wave);
+        this.soundManager.playWaveStart();
       } catch (e) {
         console.error('onWaveStart error:', e);
       }
@@ -58,6 +67,7 @@ export class GameScene extends Phaser.Scene {
       const lives = this.scoreManager.loseLife();
       this.hud.updateLives(lives);
       haptic('life_lost');
+      this.soundManager.playLifeLost();
       this.cameras.main.flash(200, 255, 0, 0, false, null, this);
       if (this.scoreManager.isGameOver()) {
         this._gameOver();
@@ -95,19 +105,32 @@ export class GameScene extends Phaser.Scene {
       () => { this.scene.resume(); }
     );
 
+    // Init sound on first user interaction
+    this.input.once('pointerdown', () => this.soundManager.init());
+
     // Управление — создаём ПОСЛЕ критической инициализации
     this.controls = new TouchControls(this, {
-      onMoveTo: (y) => this.hunter.moveTo(y),
+      onMoveTo: (y) => this.hunter.setTargetY(y),
       onMoveBy: (dy) => this.hunter.moveBy(dy),
       onFire: () => this._handleFire(),
       onSwitchWeapon: () => this._handleWeaponSwitch(),
     });
+
+    // Keyboard pause (P / ESC)
+    const kb = this.input.keyboard;
+    if (kb) {
+      this.keyP = kb.addKey('P');
+      this.keyEsc = kb.addKey('ESC');
+      this.keyP.on('down', () => this._togglePause());
+      this.keyEsc.on('down', () => this._togglePause());
+    }
   }
 
   update(time, delta) {
     if (!this.gameActive) return;
 
     this.waveManager.update();
+    this.hunter.update(delta);
 
     this.firing = false;
     this.controls.update(time, delta);
@@ -133,7 +156,8 @@ export class GameScene extends Phaser.Scene {
       const cfg = WEAPONS[this.weaponSystem.currentWeapon];
       const shootDur = cfg.burstCount ? cfg.burstCount * cfg.burstDelay + 100 : 150;
       this.hunter.shoot(shootDur);
-      this.effects.muzzleFlash(muzzle.x + 6, muzzle.y);
+      this.effects.muzzleFlash(muzzle.x, muzzle.y);
+      this.soundManager.playShot(this.weaponSystem.currentWeapon);
     }
   }
 
@@ -143,6 +167,7 @@ export class GameScene extends Phaser.Scene {
     this.hud.updateWeapon(newWeapon, this.weaponSystem.unlockedWeapons.length);
     this.hunter.setWeapon(newWeapon);
     haptic('weapon_switch');
+    this.soundManager.playWeaponSwitch();
   }
 
   _updateAimLine() {
@@ -169,6 +194,7 @@ export class GameScene extends Phaser.Scene {
     if (isRocket) {
       this.effects.explosion(x, y);
       haptic('explosion');
+      this.soundManager.playExplosion();
 
       const aoeRadius = projectile.aoe;
       this.waveManager.animals.getChildren().forEach((a) => {
@@ -184,6 +210,7 @@ export class GameScene extends Phaser.Scene {
       this.effects.hitSpark(x, y);
       this.effects.bloodSplatter(x, y);
       haptic('hit');
+      this.soundManager.playHit();
 
       const killed = animal.takeDamage(projectile.damage);
       if (killed) this._onKill(animal);
@@ -197,6 +224,7 @@ export class GameScene extends Phaser.Scene {
     this.effects.floatingText(animal.x, animal.y - 20, `+${earned}`);
     this.effects.bloodSplatter(animal.x, animal.y);
     haptic('kill');
+    this.soundManager.playKill();
 
     const newWeapon = this.weaponSystem.checkUnlocks(this.scoreManager.score);
     if (newWeapon) {
@@ -220,9 +248,16 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  _togglePause() {
+    if (!this.gameActive) return;
+    this.scene.pause();
+    this.scene.launch('Pause');
+  }
+
   _gameOver() {
     this.gameActive = false;
     haptic('game_over');
+    this.soundManager.playGameOver();
     const isNew = this.scoreManager.saveHighScore();
 
     this.time.delayedCall(500, () => {

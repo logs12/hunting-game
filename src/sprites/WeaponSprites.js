@@ -33,6 +33,53 @@ export class WeaponSprites extends SpriteFactory {
       ctx.fill();
     });
 
+    // Rifle bullet — elongated brass with dark tip
+    this.createTexture('rifle_bullet', 16, 3, (ctx) => {
+      // Trail line
+      ctx.fillStyle = 'rgba(200,180,100,0.3)';
+      ctx.fillRect(0, 1, 6, 1);
+      // Brass body
+      const grad = ctx.createLinearGradient(4, 0, 16, 0);
+      grad.addColorStop(0, '#cc9933');
+      grad.addColorStop(0.6, '#ffdd66');
+      grad.addColorStop(1, '#aa7722');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.ellipse(10, 1.5, 6, 1.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Dark tip
+      ctx.fillStyle = '#665533';
+      ctx.beginPath();
+      ctx.ellipse(15, 1.5, 1.5, 1.2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Highlight
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillRect(7, 0, 5, 1);
+    });
+
+    // Machinegun tracer bullet — orange-yellow with glow
+    this.createTexture('mg_bullet', 10, 4, (ctx) => {
+      // Tracer glow
+      ctx.fillStyle = 'rgba(255,150,0,0.3)';
+      ctx.beginPath();
+      ctx.ellipse(5, 2, 5, 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Core
+      const grad = ctx.createLinearGradient(0, 0, 10, 0);
+      grad.addColorStop(0, '#ff8800');
+      grad.addColorStop(0.5, '#ffcc00');
+      grad.addColorStop(1, '#ffaa00');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.ellipse(5, 2, 4, 1.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Bright center
+      ctx.fillStyle = 'rgba(255,255,200,0.6)';
+      ctx.beginPath();
+      ctx.ellipse(6, 1.5, 2, 0.8, 0, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
     // Rocket projectile
     this.createTexture('rocket_proj', 16, 8, (ctx) => {
       // Body

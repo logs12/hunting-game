@@ -1,7 +1,7 @@
 import { GAME, WEAPONS, WEAPON_ORDER } from '../constants.js';
 
 export class HUD {
-  constructor(scene) {
+  constructor(scene, { onPause, onToggleMute } = {}) {
     this.scene = scene;
 
     const style = {
@@ -30,6 +30,34 @@ export class HUD {
     this.livesText.setOrigin(1, 0);
     this.livesText.setDepth(26);
     this.updateLives(GAME.LIVES);
+
+    // Pause button (between lives and wave, top-right area)
+    this.pauseBtn = scene.add.text(GAME.WIDTH - 40, 24, '||', {
+      ...style,
+      fontSize: '20px',
+      color: '#cccccc',
+      padding: { x: 6, y: 2 },
+    });
+    this.pauseBtn.setOrigin(0.5);
+    this.pauseBtn.setDepth(27);
+    this.pauseBtn.setInteractive({ useHandCursor: true });
+    this.pauseBtn.on('pointerdown', () => {
+      if (onPause) onPause();
+    });
+
+    // Mute button
+    this.muteBtn = scene.add.text(GAME.WIDTH - 18, 24, 'S', {
+      ...style,
+      fontSize: '16px',
+      color: '#cccccc',
+      padding: { x: 4, y: 2 },
+    });
+    this.muteBtn.setOrigin(0.5);
+    this.muteBtn.setDepth(27);
+    this.muteBtn.setInteractive({ useHandCursor: true });
+    this.muteBtn.on('pointerdown', () => {
+      if (onToggleMute) onToggleMute();
+    });
 
     // Combo
     this.comboText = scene.add.text(10, 30, '', { ...style, fontSize: '14px', color: '#ffdd00' });
@@ -96,6 +124,11 @@ export class HUD {
     }
   }
 
+  updateMuteButton(muted) {
+    this.muteBtn.setText(muted ? 'X' : 'S');
+    this.muteBtn.setColor(muted ? '#ff6666' : '#cccccc');
+  }
+
   updateUnlocked(unlockedWeapons) {
     this._unlockedSet = new Set(unlockedWeapons);
   }
@@ -106,6 +139,8 @@ export class HUD {
     this.waveText.destroy();
     this.livesText.destroy();
     this.comboText.destroy();
+    this.pauseBtn.destroy();
+    this.muteBtn.destroy();
     this.weaponBg.destroy();
     this.weaponText.destroy();
     this.switchHint.destroy();

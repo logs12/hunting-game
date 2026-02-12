@@ -9,6 +9,10 @@ export class AnimalSprites extends SpriteFactory {
     this._generateBoar();
     this._generateWolf();
     this._generateBear();
+    this._generateEagle();
+    this._generateSnake();
+    this._generateMoose();
+    this._generatePheasant();
 
     // Hurt variants (tinted red) for each animal
     for (const key of Object.keys(ANIMALS)) {
@@ -387,6 +391,321 @@ export class AnimalSprites extends SpriteFactory {
       ctx.fillRect(44, 54, 2, 2);
       ctx.fillRect(50, 54, 2, 2);
       ctx.fillRect(54, 54, 2, 2);
+    });
+  }
+
+  _generateEagle() {
+    this.createTexture('eagle', 36, 20, (ctx) => {
+      // Body
+      ctx.fillStyle = '#5C4033';
+      ctx.beginPath();
+      ctx.ellipse(18, 12, 8, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Head
+      ctx.fillStyle = '#F5F5DC';
+      ctx.beginPath();
+      ctx.arc(8, 10, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Beak
+      ctx.fillStyle = '#DAA520';
+      ctx.beginPath();
+      ctx.moveTo(3, 10);
+      ctx.lineTo(0, 11);
+      ctx.lineTo(3, 12);
+      ctx.fill();
+
+      // Eye
+      ctx.fillStyle = '#000';
+      ctx.fillRect(6, 9, 2, 2);
+
+      // Left wing (top)
+      ctx.fillStyle = '#4A3020';
+      ctx.beginPath();
+      ctx.moveTo(14, 8);
+      ctx.quadraticCurveTo(20, 0, 30, 2);
+      ctx.lineTo(26, 8);
+      ctx.fill();
+
+      // Right wing (bottom)
+      ctx.beginPath();
+      ctx.moveTo(14, 14);
+      ctx.quadraticCurveTo(20, 20, 30, 18);
+      ctx.lineTo(26, 14);
+      ctx.fill();
+
+      // Wing feather details
+      ctx.strokeStyle = '#3A2010';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(18 + i * 4, 4 + i);
+        ctx.lineTo(26 + i * 2, 2 + i);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(18 + i * 4, 16 - i);
+        ctx.lineTo(26 + i * 2, 18 - i);
+        ctx.stroke();
+      }
+
+      // Tail
+      ctx.fillStyle = '#4A3020';
+      ctx.beginPath();
+      ctx.moveTo(26, 10);
+      ctx.lineTo(36, 8);
+      ctx.lineTo(36, 14);
+      ctx.fill();
+
+      // Talons
+      ctx.fillStyle = '#DAA520';
+      ctx.fillRect(14, 16, 2, 3);
+      ctx.fillRect(18, 16, 2, 3);
+    });
+  }
+
+  _generateSnake() {
+    this.createTexture('snake', 32, 10, (ctx) => {
+      // Body - sinusoidal shape
+      ctx.fillStyle = '#228B22';
+      ctx.beginPath();
+      ctx.moveTo(0, 5);
+      for (let x = 0; x <= 28; x += 1) {
+        const y = 5 + Math.sin(x * 0.5) * 2;
+        ctx.lineTo(x, y - 2);
+      }
+      for (let x = 28; x >= 0; x -= 1) {
+        const y = 5 + Math.sin(x * 0.5) * 2;
+        ctx.lineTo(x, y + 2);
+      }
+      ctx.fill();
+
+      // Belly (lighter)
+      ctx.fillStyle = '#90EE90';
+      ctx.beginPath();
+      ctx.moveTo(0, 6);
+      for (let x = 0; x <= 28; x += 1) {
+        const y = 5 + Math.sin(x * 0.5) * 2;
+        ctx.lineTo(x, y);
+      }
+      for (let x = 28; x >= 0; x -= 1) {
+        const y = 5 + Math.sin(x * 0.5) * 2;
+        ctx.lineTo(x, y + 1.5);
+      }
+      ctx.fill();
+
+      // Pattern spots
+      ctx.fillStyle = '#006400';
+      for (let i = 0; i < 5; i++) {
+        const sx = 4 + i * 5;
+        const sy = 5 + Math.sin(sx * 0.5) * 2 - 1;
+        ctx.beginPath();
+        ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Head
+      ctx.fillStyle = '#1E7B1E';
+      ctx.beginPath();
+      ctx.ellipse(2, 5, 3, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eye
+      ctx.fillStyle = '#FFD700';
+      ctx.fillRect(1, 4, 2, 1);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(1, 4, 1, 1);
+
+      // Tongue
+      ctx.strokeStyle = '#FF0000';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(0, 5);
+      ctx.lineTo(-2, 4);
+      ctx.moveTo(0, 5);
+      ctx.lineTo(-2, 6);
+      ctx.stroke();
+
+      // Tail (tapers)
+      ctx.fillStyle = '#228B22';
+      ctx.beginPath();
+      ctx.moveTo(28, 4);
+      ctx.lineTo(32, 5);
+      ctx.lineTo(28, 6);
+      ctx.fill();
+    });
+  }
+
+  _generateMoose() {
+    this.createTexture('moose', 56, 52, (ctx) => {
+      // Body
+      ctx.fillStyle = '#6B4226';
+      ctx.beginPath();
+      ctx.ellipse(32, 28, 16, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Neck
+      ctx.fillStyle = '#5B3620';
+      ctx.fillRect(12, 14, 10, 18);
+
+      // Head
+      ctx.fillStyle = '#6B4226';
+      ctx.beginPath();
+      ctx.ellipse(10, 14, 8, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Snout (long, bulbous)
+      ctx.fillStyle = '#7B5236';
+      ctx.beginPath();
+      ctx.ellipse(4, 18, 5, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Nose
+      ctx.fillStyle = '#333';
+      ctx.fillRect(0, 17, 3, 2);
+
+      // Eye
+      ctx.fillStyle = '#000';
+      ctx.fillRect(7, 12, 3, 2);
+
+      // Antlers (large, palmate)
+      ctx.fillStyle = '#8B7355';
+      // Left antler
+      ctx.beginPath();
+      ctx.moveTo(8, 7);
+      ctx.lineTo(2, 0);
+      ctx.lineTo(0, 4);
+      ctx.lineTo(4, 2);
+      ctx.lineTo(0, 0);
+      ctx.lineTo(6, 5);
+      ctx.fill();
+      // Right antler
+      ctx.beginPath();
+      ctx.moveTo(14, 7);
+      ctx.lineTo(20, 0);
+      ctx.lineTo(22, 4);
+      ctx.lineTo(18, 2);
+      ctx.lineTo(22, 0);
+      ctx.lineTo(16, 5);
+      ctx.fill();
+      // Antler palmate (flat part)
+      ctx.beginPath();
+      ctx.ellipse(1, 2, 4, 3, -0.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(21, 2, 4, 3, 0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Dewlap (bell under chin)
+      ctx.fillStyle = '#5B3620';
+      ctx.beginPath();
+      ctx.moveTo(6, 20);
+      ctx.quadraticCurveTo(4, 26, 8, 24);
+      ctx.fill();
+
+      // Front legs
+      ctx.fillStyle = '#5B3216';
+      ctx.fillRect(18, 38, 5, 14);
+      ctx.fillRect(26, 38, 5, 14);
+
+      // Back legs
+      ctx.fillRect(38, 38, 5, 14);
+      ctx.fillRect(46, 38, 5, 14);
+
+      // Hooves
+      ctx.fillStyle = '#222';
+      ctx.fillRect(18, 50, 5, 2);
+      ctx.fillRect(26, 50, 5, 2);
+      ctx.fillRect(38, 50, 5, 2);
+      ctx.fillRect(46, 50, 5, 2);
+
+      // Shoulder hump
+      ctx.fillStyle = '#5B3620';
+      ctx.beginPath();
+      ctx.ellipse(22, 18, 6, 5, 0, Math.PI, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  _generatePheasant() {
+    this.createTexture('pheasant', 30, 18, (ctx) => {
+      // Body
+      ctx.fillStyle = '#CD853F';
+      ctx.beginPath();
+      ctx.ellipse(14, 10, 8, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Breast (colorful)
+      ctx.fillStyle = '#8B0000';
+      ctx.beginPath();
+      ctx.ellipse(10, 12, 5, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Head
+      ctx.fillStyle = '#006400';
+      ctx.beginPath();
+      ctx.arc(5, 8, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Red face wattle
+      ctx.fillStyle = '#FF0000';
+      ctx.beginPath();
+      ctx.arc(4, 10, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Beak
+      ctx.fillStyle = '#DAA520';
+      ctx.beginPath();
+      ctx.moveTo(1, 8);
+      ctx.lineTo(0, 9);
+      ctx.lineTo(2, 9);
+      ctx.fill();
+
+      // Eye
+      ctx.fillStyle = '#FFD700';
+      ctx.fillRect(4, 7, 2, 1);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(4, 7, 1, 1);
+
+      // Wing pattern
+      ctx.fillStyle = '#8B6914';
+      ctx.beginPath();
+      ctx.ellipse(16, 9, 6, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Wing feather lines
+      ctx.strokeStyle = '#6B4914';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.moveTo(12 + i * 2, 6);
+        ctx.lineTo(14 + i * 2, 12);
+        ctx.stroke();
+      }
+
+      // Tail (long, colorful)
+      ctx.fillStyle = '#8B6914';
+      ctx.beginPath();
+      ctx.moveTo(22, 8);
+      ctx.lineTo(30, 6);
+      ctx.lineTo(30, 12);
+      ctx.lineTo(22, 12);
+      ctx.fill();
+      // Tail stripes
+      ctx.strokeStyle = '#CD853F';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(23, 9);
+      ctx.lineTo(29, 7);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(23, 11);
+      ctx.lineTo(29, 11);
+      ctx.stroke();
+
+      // Legs
+      ctx.fillStyle = '#8B6914';
+      ctx.fillRect(10, 14, 2, 4);
+      ctx.fillRect(14, 14, 2, 4);
     });
   }
 

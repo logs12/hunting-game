@@ -24,6 +24,10 @@ export class AnimalTypes {
       boar: 15,
       wolf: 20,
       bear: 5,
+      eagle: 20,
+      snake: 15,
+      moose: 8,
+      pheasant: 25,
     };
 
     const available = types.map((t) => ({ type: t, weight: weights[t] || 10 }));

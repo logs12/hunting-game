@@ -29,6 +29,12 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
   activatePhysics() {
     this.setVelocityX(-this.baseSpeed);
     this.body.setAllowGravity(false);
+
+    // Flying animals start in sky zone
+    if (this.config.flying) {
+      this.y = Phaser.Math.Between(GAME.GROUND_TOP - 80, GAME.GROUND_TOP - 20);
+    }
+
     this._initBehavior(this.scene);
   }
 
@@ -74,6 +80,75 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
               const dir = Math.random() > 0.5 ? 1 : -1;
               this.setVelocityY(dir * 100);
               scene.time.delayedCall(200, () => {
+                if (this.alive && this.active) {
+                  this.setVelocityY(0);
+                }
+              });
+            }
+          },
+          loop: true,
+        });
+        break;
+
+      case 'eagle':
+        // Sine wave soaring
+        this._eaglePhase = Math.random() * Math.PI * 2;
+        this._soarTimer = scene.time.addEvent({
+          delay: 50,
+          callback: () => {
+            if (this.alive && this.active) {
+              this._eaglePhase += 0.1;
+              this.setVelocityY(Math.sin(this._eaglePhase) * 60);
+            }
+          },
+          loop: true,
+        });
+        break;
+
+      case 'snake':
+        // Stays at bottom, sinusoidal speed changes
+        this.y = GAME.GROUND_BOTTOM;
+        this._snakePhase = 0;
+        this._snakeTimer = scene.time.addEvent({
+          delay: 50,
+          callback: () => {
+            if (this.alive && this.active) {
+              this._snakePhase += 0.15;
+              this.setVelocityY(Math.sin(this._snakePhase) * 30);
+              this.setVelocityX(-this.baseSpeed * (1 + Math.sin(this._snakePhase * 0.5) * 0.3));
+            }
+          },
+          loop: true,
+        });
+        break;
+
+      case 'moose':
+        // Periodic grazing stops
+        this._grazeTimer = scene.time.addEvent({
+          delay: 2000,
+          callback: () => {
+            if (this.alive && this.active) {
+              this.setVelocityX(0);
+              scene.time.delayedCall(1000, () => {
+                if (this.alive && this.active) {
+                  this.setVelocityX(-this.baseSpeed);
+                }
+              });
+            }
+          },
+          loop: true,
+        });
+        break;
+
+      case 'pheasant':
+        // Sudden vertical darts
+        this._dartTimer = scene.time.addEvent({
+          delay: 500,
+          callback: () => {
+            if (this.alive && this.active) {
+              const dir = Math.random() > 0.5 ? 1 : -1;
+              this.setVelocityY(dir * 150);
+              scene.time.delayedCall(150, () => {
                 if (this.alive && this.active) {
                   this.setVelocityY(0);
                 }
@@ -136,18 +211,25 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
     if (this._jumpTimer) this._jumpTimer.destroy();
     if (this._chargeTimer) this._chargeTimer.destroy();
     if (this._zigTimer) this._zigTimer.destroy();
+    if (this._soarTimer) this._soarTimer.destroy();
+    if (this._snakeTimer) this._snakeTimer.destroy();
+    if (this._grazeTimer) this._grazeTimer.destroy();
+    if (this._dartTimer) this._dartTimer.destroy();
   }
 
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
 
-    // Ограничиваем зоной земли
-    if (this.y < GAME.GROUND_TOP) {
-      this.y = GAME.GROUND_TOP;
+    // Flying animals can go above GROUND_TOP
+    const minY = this.config.flying ? GAME.GROUND_TOP - 100 : GAME.GROUND_TOP;
+    const maxY = GAME.GROUND_BOTTOM;
+
+    if (this.y < minY) {
+      this.y = minY;
       this.setVelocityY(Math.abs(this.body.velocity.y));
     }
-    if (this.y > GAME.GROUND_BOTTOM) {
-      this.y = GAME.GROUND_BOTTOM;
+    if (this.y > maxY) {
+      this.y = maxY;
       this.setVelocityY(-Math.abs(this.body.velocity.y));
     }
   }

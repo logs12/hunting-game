@@ -17,14 +17,18 @@ export const ANIMALS = {
   boar:   { name: 'Кабан',  hp: 6, speed: 170, points: 50, color: 0x665544, minWave: 3 },
   wolf:   { name: 'Волк',   hp: 3, speed: 175, points: 60, color: 0x777788, minWave: 4 },
   bear:   { name: 'Медведь',hp: 15, speed: 60,  points: 150, color: 0x553322, minWave: 5 },
+  eagle:    { name: 'Орёл',    hp: 2,  speed: 200, points: 35,  color: 0x8B6914, minWave: 2, flying: true },
+  snake:    { name: 'Змея',    hp: 1,  speed: 220, points: 20,  color: 0x228B22, minWave: 3 },
+  moose:    { name: 'Лось',    hp: 10, speed: 50,  points: 100, color: 0x8B7355, minWave: 4 },
+  pheasant: { name: 'Фазан',   hp: 1,  speed: 160, points: 30,  color: 0xCD853F, minWave: 1, flying: true },
 };
 
 export const WEAPONS = {
-  pistol:   { name: 'Пистолет',  damage: 1,  cooldown: 500,  unlock: 0,    spread: 0, projectiles: 1, aoe: 0 },
-  shotgun:  { name: 'Дробовик',  damage: 1,  cooldown: 900,  unlock: 50,   spread: 15, projectiles: 5, aoe: 0 },
-  rifle:    { name: 'Винтовка',  damage: 4,  cooldown: 700,  unlock: 200,  spread: 0, projectiles: 1, aoe: 0 },
-  machinegun:{ name: 'Пулемет', damage: 1,  cooldown: 400,  unlock: 500,  spread: 5, projectiles: 1, aoe: 0, burstCount: 3, burstDelay: 50 },
-  rocket:   { name: 'Ракетница', damage: 10, cooldown: 1500, unlock: 1000, spread: 0, projectiles: 1, aoe: 80 },
+  pistol:   { name: 'Пистолет',  damage: 1,  cooldown: 500,  unlock: 0,    spread: 0, projectiles: 1, aoe: 0, barrelOffsetY: -2 },
+  shotgun:  { name: 'Дробовик',  damage: 1,  cooldown: 900,  unlock: 50,   spread: 15, projectiles: 5, aoe: 0, barrelOffsetY: -2 },
+  rifle:    { name: 'Винтовка',  damage: 4,  cooldown: 700,  unlock: 200,  spread: 0, projectiles: 1, aoe: 0, barrelOffsetY: -3 },
+  machinegun:{ name: 'Пулемет', damage: 1,  cooldown: 400,  unlock: 500,  spread: 5, projectiles: 1, aoe: 0, burstCount: 3, burstDelay: 50, barrelOffsetY: -4 },
+  rocket:   { name: 'Ракетница', damage: 10, cooldown: 1500, unlock: 1000, spread: 0, projectiles: 1, aoe: 80, barrelOffsetY: 0 },
 };
 
 export const WEAPON_ORDER = ['pistol', 'shotgun', 'rifle', 'machinegun', 'rocket'];

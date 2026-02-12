@@ -5,6 +5,7 @@ import { BootScene } from './scenes/BootScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
 import { GameScene } from './scenes/GameScene.js';
 import { GameOverScene } from './scenes/GameOverScene.js';
+import { PauseScene } from './scenes/PauseScene.js';
 
 initTelegram();
 
@@ -24,7 +25,7 @@ const config = {
       debug: false,
     },
   },
-  scene: [BootScene, MenuScene, GameScene, GameOverScene],
+  scene: [BootScene, MenuScene, GameScene, GameOverScene, PauseScene],
   input: {
     keyboard: true,
     activePointers: 3,
