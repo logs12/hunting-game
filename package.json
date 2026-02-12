@@ -1,0 +1,20 @@
+{
+  "name": "hunting-game",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "rsbuild dev",
+    "build": "rsbuild build",
+    "preview": "rsbuild preview",
+    "deploy:vercel": "npx vercel --prod",
+    "deploy:netlify": "npm run build && npx netlify deploy --prod --dir=dist",
+    "deploy:pages": "npm run build && npx wrangler pages deploy dist"
+  },
+  "devDependencies": {
+    "@rsbuild/core": "^1.7.3"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0"
+  }
+}
