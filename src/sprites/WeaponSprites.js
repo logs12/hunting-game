@@ -10,67 +10,75 @@ export class WeaponSprites extends SpriteFactory {
   generate() {
     // --- Projectile textures ---
 
-    // Bullet (pistol)
-    this.createTexture('bullet', 6, 3, (ctx) => {
-      const grad = ctx.createLinearGradient(0, 0, 6, 0);
-      grad.addColorStop(0, '#cc9900');
-      grad.addColorStop(0.5, '#ffee55');
-      grad.addColorStop(1, '#ffcc00');
+    // Bullet (pistol) — small pointed brass round
+    this.createTexture('bullet', 5, 2, (ctx) => {
+      // Brass body
+      const grad = ctx.createLinearGradient(0, 0, 5, 0);
+      grad.addColorStop(0, '#996633');
+      grad.addColorStop(0.5, '#cc9944');
+      grad.addColorStop(1, '#886633');
       ctx.fillStyle = grad;
+      ctx.fillRect(0, 0.3, 3, 1.4);
+      // Pointed copper tip
+      ctx.fillStyle = '#aa6633';
       ctx.beginPath();
-      ctx.ellipse(3, 1.5, 3, 1.5, 0, 0, Math.PI * 2);
+      ctx.moveTo(3, 0); ctx.lineTo(5, 1); ctx.lineTo(3, 2);
       ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      ctx.beginPath();
-      ctx.ellipse(4, 1, 2, 0.7, 0, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    // Pellet (shotgun)
-    this.createTexture('pellet', 4, 4, (ctx) => {
-      ctx.fillStyle = '#ffaa00';
-      ctx.beginPath();
-      ctx.arc(2, 2, 2, 0, Math.PI * 2);
-      ctx.fill();
+      // Specular
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillRect(1, 0.3, 2, 0.5);
+    });
+
+    // Pellet (shotgun) — tiny grey lead ball
+    this.createTexture('pellet', 3, 3, (ctx) => {
+      const grad = ctx.createRadialGradient(1.2, 1, 0.3, 1.5, 1.5, 1.5);
+      grad.addColorStop(0, '#aaa');
+      grad.addColorStop(1, '#555');
+      ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.arc(1.5, 1, 0.8, 0, Math.PI * 2);
+      ctx.arc(1.5, 1.5, 1.4, 0, Math.PI * 2);
       ctx.fill();
     });
 
-    // Rifle bullet — elongated brass with dark tip
-    this.createTexture('rifle_bullet', 10, 2, (ctx) => {
-      const grad = ctx.createLinearGradient(2, 0, 10, 0);
-      grad.addColorStop(0, '#cc9933');
-      grad.addColorStop(0.6, '#ffdd66');
-      grad.addColorStop(1, '#aa7722');
+    // Rifle bullet — long pointed with dark jacket
+    this.createTexture('rifle_bullet', 8, 2, (ctx) => {
+      const grad = ctx.createLinearGradient(0, 0, 6, 0);
+      grad.addColorStop(0, '#996633');
+      grad.addColorStop(0.5, '#cc9944');
+      grad.addColorStop(1, '#886633');
       ctx.fillStyle = grad;
+      ctx.fillRect(0, 0.2, 5, 1.6);
+      // Pointed dark jacket tip
+      ctx.fillStyle = '#554433';
       ctx.beginPath();
-      ctx.ellipse(5, 1, 5, 1, 0, 0, Math.PI * 2);
+      ctx.moveTo(5, 0); ctx.lineTo(8, 1); ctx.lineTo(5, 2);
       ctx.fill();
-      ctx.fillStyle = '#665533';
-      ctx.beginPath();
-      ctx.ellipse(9, 1, 1, 0.8, 0, 0, Math.PI * 2);
-      ctx.fill();
+      // Specular
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.fillRect(1, 0.2, 3, 0.5);
     });
 
-    // Machinegun tracer bullet — orange-yellow with glow
-    this.createTexture('mg_bullet', 7, 3, (ctx) => {
-      ctx.fillStyle = 'rgba(255,150,0,0.3)';
-      ctx.beginPath();
-      ctx.ellipse(3.5, 1.5, 3.5, 1.5, 0, 0, Math.PI * 2);
-      ctx.fill();
-      const grad = ctx.createLinearGradient(0, 0, 7, 0);
-      grad.addColorStop(0, '#ff8800');
-      grad.addColorStop(0.5, '#ffcc00');
-      grad.addColorStop(1, '#ffaa00');
+    // Machinegun tracer — brass with faint tracer glow
+    this.createTexture('mg_bullet', 6, 2, (ctx) => {
+      // Faint tracer trail
+      ctx.fillStyle = 'rgba(255,180,50,0.2)';
+      ctx.fillRect(0, 0.3, 2, 1.4);
+      // Brass body
+      const grad = ctx.createLinearGradient(1, 0, 6, 0);
+      grad.addColorStop(0, '#996633');
+      grad.addColorStop(0.5, '#cc9944');
+      grad.addColorStop(1, '#886633');
       ctx.fillStyle = grad;
+      ctx.fillRect(1, 0.3, 3.5, 1.4);
+      // Pointed tip
+      ctx.fillStyle = '#775533';
       ctx.beginPath();
-      ctx.ellipse(3.5, 1.5, 3, 1.2, 0, 0, Math.PI * 2);
+      ctx.moveTo(4.5, 0); ctx.lineTo(6, 1); ctx.lineTo(4.5, 2);
       ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,200,0.6)';
+      // Tracer glow at base
+      ctx.fillStyle = 'rgba(255,150,50,0.4)';
       ctx.beginPath();
-      ctx.ellipse(4.5, 1, 1.5, 0.6, 0, 0, Math.PI * 2);
+      ctx.arc(0.5, 1, 0.8, 0, Math.PI * 2);
       ctx.fill();
     });
 
@@ -463,27 +471,22 @@ export class WeaponSprites extends SpriteFactory {
       ctx.fill();
     });
 
-    // Sniper bullet — very long thin brass bullet with dark tip
-    this.createTexture('sniper_bullet', 14, 2, (ctx) => {
-      const grad = ctx.createLinearGradient(0, 0, 14, 0);
-      grad.addColorStop(0, '#cc9933');
-      grad.addColorStop(0.4, '#ffdd66');
-      grad.addColorStop(0.7, '#ddbb44');
-      grad.addColorStop(1, '#554422');
+    // Sniper bullet — very long needle-like pointed round
+    this.createTexture('sniper_bullet', 12, 2, (ctx) => {
+      const grad = ctx.createLinearGradient(0, 0, 8, 0);
+      grad.addColorStop(0, '#886633');
+      grad.addColorStop(0.5, '#bb8844');
+      grad.addColorStop(1, '#776633');
       ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.ellipse(7, 1, 7, 1, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // Dark tip
+      ctx.fillRect(0, 0.3, 7, 1.4);
+      // Long pointed dark jacket tip
       ctx.fillStyle = '#443322';
       ctx.beginPath();
-      ctx.ellipse(12.5, 1, 1.8, 0.8, 0, 0, Math.PI * 2);
+      ctx.moveTo(7, 0); ctx.lineTo(12, 1); ctx.lineTo(7, 2);
       ctx.fill();
-      // Highlight
-      ctx.fillStyle = 'rgba(255,255,255,0.35)';
-      ctx.beginPath();
-      ctx.ellipse(6, 0.5, 4, 0.3, 0, 0, Math.PI * 2);
-      ctx.fill();
+      // Specular
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.fillRect(1, 0.3, 4, 0.4);
     });
 
     // Flame — orange/yellow flame particle, glowing
@@ -556,33 +559,22 @@ export class WeaponSprites extends SpriteFactory {
       ctx.fill();
     });
 
-    // Heavy bullet — thick brass bullet, like mg_bullet but fatter
-    this.createTexture('heavy_bullet', 8, 4, (ctx) => {
-      // Outer glow
-      ctx.fillStyle = 'rgba(255,150,0,0.25)';
-      ctx.beginPath();
-      ctx.ellipse(4, 2, 4, 2, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // Bullet body
-      const grad = ctx.createLinearGradient(0, 0, 8, 0);
-      grad.addColorStop(0, '#cc9900');
-      grad.addColorStop(0.4, '#ffee55');
-      grad.addColorStop(0.7, '#ddbb33');
-      grad.addColorStop(1, '#aa7722');
+    // Heavy bullet — larger caliber pointed round
+    this.createTexture('heavy_bullet', 8, 3, (ctx) => {
+      const grad = ctx.createLinearGradient(0, 0, 6, 0);
+      grad.addColorStop(0, '#996633');
+      grad.addColorStop(0.5, '#cc9944');
+      grad.addColorStop(1, '#886633');
       ctx.fillStyle = grad;
+      ctx.fillRect(0, 0.3, 5, 2.4);
+      // Pointed dark tip
+      ctx.fillStyle = '#554433';
       ctx.beginPath();
-      ctx.ellipse(4, 2, 3.5, 1.8, 0, 0, Math.PI * 2);
+      ctx.moveTo(5, 0); ctx.lineTo(8, 1.5); ctx.lineTo(5, 3);
       ctx.fill();
-      // Dark tip
-      ctx.fillStyle = '#665533';
-      ctx.beginPath();
-      ctx.ellipse(7, 2, 1.2, 1.2, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // Highlight
-      ctx.fillStyle = 'rgba(255,255,255,0.45)';
-      ctx.beginPath();
-      ctx.ellipse(4, 1, 2.5, 0.6, 0, 0, Math.PI * 2);
-      ctx.fill();
+      // Specular
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.fillRect(1, 0.3, 3, 0.6);
     });
 
     // Laser beam — bright red/pink laser line with glow

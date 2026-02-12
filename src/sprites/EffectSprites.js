@@ -46,6 +46,18 @@ export class EffectSprites extends SpriteFactory {
       ctx.fill();
     });
 
+    // Blood pool under carcasses
+    this.createTexture('blood_pool', 32, 10, (ctx) => {
+      const grad = ctx.createRadialGradient(16, 5, 2, 16, 5, 14);
+      grad.addColorStop(0, '#880000');
+      grad.addColorStop(0.6, '#aa0000');
+      grad.addColorStop(1, 'rgba(100,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.ellipse(16, 5, 15, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
     // Simple white particle for generic effects
     this.createTexture('particle', 3, 3, (ctx) => {
       ctx.fillStyle = '#fff';

@@ -4,7 +4,7 @@ import { GAME, WEAPONS } from '../constants.js';
 export class Hunter {
   constructor(scene) {
     this.scene = scene;
-    this.sprite = scene.add.sprite(40, GAME.GROUND_BOTTOM - 30, 'hunter_idle_0');
+    this.sprite = scene.add.sprite(30, GAME.GROUND_BOTTOM - 22, 'hunter_idle_0');
     this.sprite.setOrigin(0.5, 0.5);
     this.sprite.setDepth(10);
     this.shooting = false;
@@ -81,10 +81,10 @@ export class Hunter {
 
   _updateWeaponPos() {
     if (this.shooting) {
-      this.weaponSprite.x = this.sprite.x + 23;
-      this.weaponSprite.y = this.sprite.y - 10;
+      this.weaponSprite.x = this.sprite.x + 16;
+      this.weaponSprite.y = this.sprite.y - 7;
     } else {
-      this.weaponSprite.x = this.sprite.x + 17;
+      this.weaponSprite.x = this.sprite.x + 12;
       this.weaponSprite.y = this.sprite.y;
     }
   }

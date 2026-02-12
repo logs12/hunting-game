@@ -23,12 +23,16 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
     this.alive = true;
     this.hurtTimer = 0;
     this._timers = [];
+    // Gradual acceleration
+    this.speedMultiplier = 0.7;
+    this.maxSpeedMult = 1.3;
+    this.accelRate = 0.075;
 
     this.setDepth(5);
   }
 
   activatePhysics() {
-    this.setVelocityX(-this.baseSpeed);
+    this.setVelocityX(-this.baseSpeed * this.speedMultiplier);
     this.body.setAllowGravity(false);
 
     if (this.config.flying) {
@@ -351,21 +355,50 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
   die() {
     this.alive = false;
     this.body.setVelocity(0, 0);
+    this.body.setAllowGravity(false);
     this.anims.stop();
     this.clearTint();
     this._cleanTimers();
 
+    // Blood pool under carcass
+    const groundY = Math.min(this.y + 15, GAME.GROUND_BOTTOM);
+    const pool = this.scene.add.sprite(this.x, groundY, 'blood_pool');
+    pool.setDepth(3);
+    pool.setAlpha(0);
+    pool.setScale(0.3);
+
+    // Carcass falls and rotates onto ground
+    this.setDepth(4);
     this.scene.tweens.add({
       targets: this,
       angle: 90,
-      alpha: 0,
-      y: this.y + 20,
-      duration: 400,
-      ease: 'Power2',
+      y: groundY - 5,
+      duration: 300,
+      ease: 'Bounce.easeOut',
     });
 
-    this.scene.time.delayedCall(450, () => {
-      if (this.active) this.destroy();
+    // Blood pool grows
+    this.scene.tweens.add({
+      targets: pool,
+      alpha: 0.8,
+      scaleX: 1.0 + Math.random() * 0.4,
+      scaleY: 1.0,
+      duration: 600,
+      ease: 'Power1',
+    });
+
+    // After 4s, fade out over 2s
+    this.scene.time.delayedCall(4000, () => {
+      this.scene.tweens.add({
+        targets: [this, pool],
+        alpha: 0,
+        duration: 2000,
+        ease: 'Power1',
+      });
+      this.scene.time.delayedCall(2100, () => {
+        if (pool.active) pool.destroy();
+        if (this.active) this.destroy();
+      });
     });
   }
 
@@ -381,6 +414,14 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
 
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
+
+    // Gradual acceleration — scale current velocity each frame
+    if (this.alive && this.speedMultiplier < this.maxSpeedMult) {
+      const old = this.speedMultiplier;
+      this.speedMultiplier = Math.min(this.maxSpeedMult, old + this.accelRate * delta / 1000);
+      const ratio = this.speedMultiplier / old;
+      this.body.velocity.x *= ratio;
+    }
 
     const minY = this.config.flying ? GAME.FLYING_MIN_Y : GAME.GROUND_TOP;
     const maxY = GAME.GROUND_BOTTOM;

@@ -43,7 +43,7 @@ export class MenuScene extends Phaser.Scene {
 
     // Hunter preview
     const hunter = this.add.sprite(W / 2, H * 0.50, 'hunter_idle_0');
-    hunter.setScale(H > 400 ? 1.8 : 1.2);
+    hunter.setScale(H > 400 ? 2.5 : 1.7);
 
     // High score
     const highScore = parseInt(localStorage.getItem('huntingGameHighScore') || '0', 10);

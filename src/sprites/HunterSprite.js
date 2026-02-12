@@ -1,6 +1,6 @@
 import { SpriteFactory } from './SpriteFactory.js';
 
-const HUNTER_SCALE = 0.625;
+const HUNTER_SCALE = 0.45;
 
 export class HunterSprite extends SpriteFactory {
   _ct(key, w, h, drawFn) {
