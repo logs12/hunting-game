@@ -5,25 +5,13 @@ export function initTelegram() {
   tg.ready();
   tg.expand();
 
-  // Полноэкранный режим для игры (Bot API 8.0+)
-  if (tg.requestFullscreen) {
-    tg.requestFullscreen();
-  }
+  // Методы новых версий API могут выбросить ошибку в старых клиентах
+  const safeTry = (fn) => { try { fn(); } catch (e) { /* unsupported in this client */ } };
 
-  // Блокировка ориентации — портретный режим
-  if (tg.lockOrientation) {
-    tg.lockOrientation();
-  }
-
-  // Защита от случайного закрытия свайпом
-  if (tg.disableVerticalSwipes) {
-    tg.disableVerticalSwipes();
-  }
-
-  // Защита от случайного закрытия кнопкой «назад»
-  if (tg.enableClosingConfirmation) {
-    tg.enableClosingConfirmation();
-  }
+  safeTry(() => tg.requestFullscreen());
+  safeTry(() => tg.lockOrientation());
+  safeTry(() => tg.disableVerticalSwipes());
+  safeTry(() => tg.enableClosingConfirmation());
 }
 
 export function getUserName() {
@@ -52,17 +40,12 @@ export function onVisibilityChange(onPause, onResume) {
   }
 }
 
-// Снять защиту от закрытия (на экране Game Over)
 export function disableClosingConfirmation() {
-  if (tg?.disableClosingConfirmation) {
-    tg.disableClosingConfirmation();
-  }
+  try { tg?.disableClosingConfirmation(); } catch (e) { /* unsupported */ }
 }
 
 export function enableClosingConfirmation() {
-  if (tg?.enableClosingConfirmation) {
-    tg.enableClosingConfirmation();
-  }
+  try { tg?.enableClosingConfirmation(); } catch (e) { /* unsupported */ }
 }
 
 // Сохранение/загрузка рекордов через Telegram CloudStorage
