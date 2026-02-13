@@ -1,13 +1,19 @@
 import Phaser from 'phaser';
-import { GAME } from '../constants.js';
-import { disableClosingConfirmation } from '../telegram.js';
+import { GAME } from '../constants';
+import { disableClosingConfirmation } from '../telegram';
+import type { GameOverData } from '../types';
 
 export class GameOverScene extends Phaser.Scene {
+  finalScore!: number;
+  finalWave!: number;
+  highScore!: number;
+  isNewRecord!: boolean;
+
   constructor() {
     super('GameOver');
   }
 
-  init(data) {
+  init(data: GameOverData): void {
     this.finalScore = data.score || 0;
     this.finalWave = data.wave || 1;
     this.highScore = data.highScore || 0;
@@ -19,7 +25,7 @@ export class GameOverScene extends Phaser.Scene {
 
     const W = GAME.WIDTH;
     const H = GAME.HEIGHT;
-    const fs = (size) => `${Math.min(size, Math.floor(H * size / 640))}px`;
+    const fs = (size: number): string => `${Math.min(size, Math.floor(H * size / 640))}px`;
 
     // Background
     this.add.image(W / 2, H / 2, 'background').setDepth(0);

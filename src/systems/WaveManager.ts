@@ -1,10 +1,21 @@
 import Phaser from 'phaser';
-import { GAME, DIFFICULTY, ANIMALS } from '../constants.js';
-import { AnimalTypes } from '../entities/AnimalTypes.js';
-import { Animal } from '../entities/Animal.js';
+import { GAME, DIFFICULTY, ANIMALS } from '../constants';
+import { AnimalTypes } from '../entities/AnimalTypes';
+import { Animal } from '../entities/Animal';
 
 export class WaveManager {
-  constructor(scene) {
+  scene: Phaser.Scene;
+  currentWave: number;
+  waveActive: boolean;
+  waveTimer: Phaser.Time.TimerEvent | null;
+  spawnTimer: Phaser.Time.TimerEvent | null;
+  animals: Phaser.Physics.Arcade.Group;
+  onWaveStart: ((wave: number) => void) | null;
+  onWaveEnd: ((wave: number) => void) | null;
+  onAnimalEscaped: ((animal: Animal) => void) | null;
+  lastError: string | null;
+
+  constructor(scene: Phaser.Scene) {
     this.scene = scene;
     this.currentWave = 0;
     this.waveActive = false;
@@ -17,7 +28,7 @@ export class WaveManager {
     this.lastError = null;
   }
 
-  startNextWave() {
+  startNextWave(): void {
     try {
       this.currentWave++;
       this.waveActive = true;
@@ -39,13 +50,13 @@ export class WaveManager {
       this.waveTimer = this.scene.time.delayedCall(duration, () => {
         this.endWave();
       });
-    } catch (e) {
-      this.lastError = 'startWave: ' + e.message;
+    } catch (e: unknown) {
+      this.lastError = 'startWave: ' + (e instanceof Error ? e.message : String(e));
       console.error('startNextWave error:', e);
     }
   }
 
-  _spawnAnimal() {
+  _spawnAnimal(): void {
     if (!this.waveActive) return;
 
     try {
@@ -55,19 +66,19 @@ export class WaveManager {
       } else {
         this._spawnSingle();
       }
-    } catch (e) {
-      this.lastError = 'spawn: ' + e.message;
+    } catch (e: unknown) {
+      this.lastError = 'spawn: ' + (e instanceof Error ? e.message : String(e));
       console.error('Spawn error:', e);
     }
   }
 
-  _spawnSingle() {
+  _spawnSingle(): void {
     const animal = AnimalTypes.spawn(this.scene, this.currentWave);
     this.animals.add(animal);
     animal.activatePhysics();
   }
 
-  _spawnGroup() {
+  _spawnGroup(): void {
     const type = AnimalTypes.getWeightedRandom(this.currentWave);
     const config = ANIMALS[type];
     const size = DIFFICULTY.groupSize(this.currentWave);
@@ -108,7 +119,7 @@ export class WaveManager {
     }
   }
 
-  endWave() {
+  endWave(): void {
     this.waveActive = false;
     if (this.spawnTimer) this.spawnTimer.destroy();
     if (this.waveTimer) this.waveTimer.destroy();
@@ -116,8 +127,8 @@ export class WaveManager {
     if (this.onWaveEnd) this.onWaveEnd(this.currentWave);
   }
 
-  update() {
-    this.animals.getChildren().forEach((animal) => {
+  update(): void {
+    (this.animals.getChildren() as Animal[]).forEach((animal) => {
       if (animal.active && animal.alive && animal.x < -10) {
         if (this.onAnimalEscaped) this.onAnimalEscaped(animal);
         animal.escaped();
@@ -125,15 +136,15 @@ export class WaveManager {
     });
   }
 
-  getAliveCount() {
-    return this.animals.getChildren().filter((a) => a.active && a.alive).length;
+  getAliveCount(): number {
+    return (this.animals.getChildren() as Animal[]).filter((a) => a.active && a.alive).length;
   }
 
-  isWaveCleared() {
+  isWaveCleared(): boolean {
     return !this.waveActive && this.getAliveCount() === 0;
   }
 
-  destroy() {
+  destroy(): void {
     if (this.spawnTimer) this.spawnTimer.destroy();
     if (this.waveTimer) this.waveTimer.destroy();
     this.animals.clear(true, true);

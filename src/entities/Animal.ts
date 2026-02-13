@@ -1,8 +1,27 @@
 import Phaser from 'phaser';
-import { GAME, ANIMALS } from '../constants.js';
+import { GAME, ANIMALS, DIFFICULTY } from '../constants';
+import type { AnimalConfig } from '../types';
 
 export class Animal extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene, type, waveNum) {
+  declare body: Phaser.Physics.Arcade.Body;
+  animalType: string;
+  config: AnimalConfig;
+  hp: number;
+  maxHp: number;
+  points: number;
+  baseSpeed: number;
+  waveNum: number;
+  alive: boolean;
+  hurtTimer: number;
+  _timers: Phaser.Time.TimerEvent[];
+  speedMultiplier: number;
+  maxSpeedMult: number;
+  accelRate: number;
+  dying: boolean;
+  _lastTrailX: number | undefined;
+  _bloodPoolStamped: boolean;
+
+  constructor(scene: Phaser.Scene, type: string, waveNum: number) {
     const config = ANIMALS[type];
     const y = Phaser.Math.Between(GAME.GROUND_TOP, GAME.GROUND_BOTTOM);
 
@@ -12,13 +31,14 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
 
     this.animalType = type;
     this.config = config;
-    // Enhanced HP scaling
-    this.hp = config.hp + Math.floor(waveNum / 3) + (waveNum > 10 ? Math.floor((waveNum - 10) / 2) : 0);
+    // HP: multiplicative scaling via DIFFICULTY
+    const hpMult = DIFFICULTY.hpScale(waveNum);
+    this.hp = Math.ceil(config.hp * hpMult);
     this.maxHp = this.hp;
     this.points = config.points;
-    // Enhanced speed scaling
-    const speedBonus = Math.min(config.speed, waveNum * 4 + Math.floor(waveNum / 5) * 5);
-    this.baseSpeed = config.speed + speedBonus;
+    // Speed: multiplicative scaling via DIFFICULTY
+    const speedMult = DIFFICULTY.speedScale(waveNum);
+    this.baseSpeed = Math.round(config.speed * speedMult);
     this.waveNum = waveNum;
     this.alive = true;
     this.hurtTimer = 0;
@@ -27,11 +47,14 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
     this.speedMultiplier = 0.7;
     this.maxSpeedMult = 1.3;
     this.accelRate = 0.075;
+    this.dying = false;
+    this._lastTrailX = undefined;
+    this._bloodPoolStamped = false;
 
     this.setDepth(5);
   }
 
-  activatePhysics() {
+  activatePhysics(): void {
     this.setVelocityX(-this.baseSpeed * this.speedMultiplier);
     this.body.setAllowGravity(false);
 
@@ -43,16 +66,16 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
     this._initBehavior(this.scene);
   }
 
-  _addTimer(timer) {
+  _addTimer(timer: Phaser.Time.TimerEvent): Phaser.Time.TimerEvent {
     this._timers.push(timer);
     return timer;
   }
 
-  _timedEvent(scene, delay, cb) {
+  _timedEvent(scene: Phaser.Scene, delay: number, cb: () => void): Phaser.Time.TimerEvent {
     return this._addTimer(scene.time.addEvent({ delay, callback: cb, loop: true }));
   }
 
-  _sineMove(scene, delay, phase, ampY, ampX) {
+  _sineMove(scene: Phaser.Scene, delay: number, phase: number, ampY: number, ampX: number): void {
     let p = phase;
     this._timedEvent(scene, delay, () => {
       if (!this.alive || !this.active) return;
@@ -62,7 +85,7 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  _zigzag(scene, delay, ampY, durMs) {
+  _zigzag(scene: Phaser.Scene, delay: number, ampY: number, durMs: number): void {
     this._timedEvent(scene, delay, () => {
       if (!this.alive || !this.active) return;
       const dir = Math.random() > 0.5 ? 1 : -1;
@@ -73,7 +96,7 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  _chargeBurst(scene, delay, mult, durMs) {
+  _chargeBurst(scene: Phaser.Scene, delay: number, mult: number, durMs: number): void {
     this._timedEvent(scene, delay, () => {
       if (!this.alive || !this.active) return;
       this.setVelocityX(-this.baseSpeed * mult);
@@ -83,7 +106,7 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  _pauseMove(scene, delay, pauseMs) {
+  _pauseMove(scene: Phaser.Scene, delay: number, pauseMs: number): void {
     this._timedEvent(scene, delay, () => {
       if (!this.alive || !this.active) return;
       this.setVelocityX(0);
@@ -93,7 +116,7 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  _initBehavior(scene) {
+  _initBehavior(scene: Phaser.Scene): void {
     switch (this.animalType) {
       case 'rabbit':
         this._timedEvent(scene, 600, () => {
@@ -324,10 +347,25 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  takeDamage(amount) {
+  isHeadshot(hitX: number, hitY: number): boolean {
+    const config = ANIMALS[this.animalType];
+    const hz = config.headZone || { xFrac: 0.25, yFrac: 0.35 };
+    const bounds = this.getBounds();
+
+    // Head is at the FRONT of the animal (animals move left, so front = left side)
+    const headLeft = bounds.left;
+    const headRight = bounds.left + bounds.width * hz.xFrac;
+    const headTop = bounds.top;
+    const headBottom = bounds.top + bounds.height * hz.yFrac;
+
+    return hitX >= headLeft && hitX <= headRight && hitY >= headTop && hitY <= headBottom;
+  }
+
+  takeDamage(amount: number, isHeadshot: boolean = false): boolean {
     if (!this.alive) return false;
 
-    this.hp -= amount;
+    const actualDamage = isHeadshot ? amount * 2 : amount;
+    this.hp -= actualDamage;
     this.hurtTimer = 150;
     this.setTint(0xff4444);
     this.anims.pause();
@@ -346,74 +384,112 @@ export class Animal extends Phaser.Physics.Arcade.Sprite {
     });
 
     if (this.hp <= 0) {
-      this.die();
+      this.die(isHeadshot);
       return true;
     }
     return false;
   }
 
-  die() {
+  die(_headshot: boolean = false): void {
     this.alive = false;
-    this.body.setVelocity(0, 0);
-    this.body.setAllowGravity(false);
+    this.dying = true;
+    this._bloodPoolStamped = false;
     this.anims.stop();
     this.clearTint();
     this._cleanTimers();
 
-    // Blood pool under carcass
-    const groundY = Math.min(this.y + 15, GAME.GROUND_BOTTOM);
-    const pool = this.scene.add.sprite(this.x, groundY, 'blood_pool');
-    pool.setDepth(3);
-    pool.setAlpha(0);
-    pool.setScale(0.3);
+    // Slide horizontally with inertia; flying animals fall to ground
+    const hVel = this.body.velocity.x * 0.6;
+    if (this.config.flying) {
+      this.body.setVelocity(hVel, 150);
+      this.body.setAllowGravity(false);
+    } else {
+      this.body.setVelocity(hVel, 0);
+      this.body.setAllowGravity(false);
+    }
 
-    // Carcass falls and rotates onto ground
+    // Switch to death sprite
+    this.setTexture(`${this.animalType}_dead_0`);
     this.setDepth(4);
+
+    // Tumbling rotation
+    const rotSpeed = Phaser.Math.Between(90, 200);
+    const rotDir = Math.random() > 0.5 ? 1 : -1;
     this.scene.tweens.add({
       targets: this,
-      angle: 90,
-      y: groundY - 5,
-      duration: 300,
-      ease: 'Bounce.easeOut',
+      angle: rotDir * rotSpeed,
+      duration: 800,
+      ease: 'Quad.easeOut',
     });
 
-    // Blood pool grows
-    this.scene.tweens.add({
-      targets: pool,
-      alpha: 0.8,
-      scaleX: 1.0 + Math.random() * 0.4,
-      scaleY: 1.0,
-      duration: 600,
-      ease: 'Power1',
-    });
-
-    // After 4s, fade out over 2s
-    this.scene.time.delayedCall(4000, () => {
+    // After 15s, fade out carcass
+    this.scene.time.delayedCall(15000, () => {
       this.scene.tweens.add({
-        targets: [this, pool],
+        targets: this,
         alpha: 0,
         duration: 2000,
         ease: 'Power1',
       });
       this.scene.time.delayedCall(2100, () => {
-        if (pool.active) pool.destroy();
         if (this.active) this.destroy();
       });
     });
   }
 
-  escaped() {
+  escaped(): void {
     this._cleanTimers();
     this.destroy();
   }
 
-  _cleanTimers() {
+  _cleanTimers(): void {
     this._timers.forEach(t => t.destroy());
     this._timers = [];
   }
 
-  preUpdate(time, delta) {
+  preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
+
+    // Dying body — horizontal slide with friction, stamp blood pool when stopped
+    if (this.dying) {
+      // Flying carcass falls to ground
+      if (this.y >= GAME.GROUND_BOTTOM) {
+        this.y = GAME.GROUND_BOTTOM;
+        this.body.setVelocityY(0);
+      }
+
+      // Horizontal friction
+      this.body.velocity.x *= 0.93;
+      const stopped = Math.abs(this.body.velocity.x) < 2 && this.body.velocity.y === 0;
+      if (stopped) {
+        this.body.setVelocity(0, 0);
+      }
+
+      // Blood trail while sliding — only on ground (dense, visible smear)
+      if (Math.abs(this.body.velocity.x) > 3 && this.y >= GAME.GROUND_TOP) {
+        if (this._lastTrailX === undefined || Math.abs(this.x - this._lastTrailX) > 4) {
+          const effects = (this.scene as any).effects;
+          const trailY = Math.max(GAME.GROUND_TOP, this.y + 5);
+          // Main smear
+          effects?.stampBlood?.(this.x, trailY, 'blood', 0.7 + Math.random() * 0.4, 0.4 + Math.random() * 0.2, 0.7);
+          // Secondary drip offset
+          if (Math.random() > 0.4) {
+            const dy = (Math.random() - 0.5) * 6;
+            effects?.stampBlood?.(this.x + 2, Math.max(GAME.GROUND_TOP, trailY + dy), 'blood', 0.3 + Math.random() * 0.3, 0.3, 0.5);
+          }
+          this._lastTrailX = this.x;
+        }
+      }
+
+      // Stamp blood pool once corpse has fully stopped (on ground, no movement)
+      if (!this._bloodPoolStamped && stopped) {
+        this._bloodPoolStamped = true;
+        const effects = (this.scene as any).effects;
+        const poolY = Math.max(GAME.GROUND_TOP, this.y + 8);
+        effects?.stampBlood?.(this.x, poolY, 'blood_pool', 1 + Math.random() * 0.4, 1, 0.8);
+      }
+
+      return; // Skip alive-only logic
+    }
 
     // Gradual acceleration — scale current velocity each frame
     if (this.alive && this.speedMultiplier < this.maxSpeedMult) {

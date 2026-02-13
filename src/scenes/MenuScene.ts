@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import { GAME } from '../constants.js';
-import { getUserName } from '../telegram.js';
+import { GAME } from '../constants';
+import { getUserName } from '../telegram';
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -10,7 +10,7 @@ export class MenuScene extends Phaser.Scene {
   create() {
     const W = GAME.WIDTH;
     const H = GAME.HEIGHT;
-    const fs = (size) => `${Math.min(size, Math.floor(H * size / 640))}px`;
+    const fs = (size: number): string => `${Math.min(size, Math.floor(H * size / 640))}px`;
 
     // Background
     this.add.image(W / 2, H / 2, 'background');

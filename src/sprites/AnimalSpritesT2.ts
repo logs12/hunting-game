@@ -1,13 +1,13 @@
-import { SpriteFactory } from './SpriteFactory.js';
+import { SpriteFactory } from './SpriteFactory';
 
 const ANIMAL_SCALE = 0.62;
 
 export class AnimalSpritesT2 extends SpriteFactory {
-  _ct(key, w, h, drawFn) {
+  _ct(key: string, w: number, h: number, drawFn: (ctx: CanvasRenderingContext2D, w: number, h: number) => void): void {
     this.createTexture(key, w, h, drawFn, ANIMAL_SCALE);
   }
 
-  generate() {
+  generate(): void {
     this._generateRaccoonFrames();
     this._generateDuckFrames();
     this._generateCrowFrames();
@@ -18,7 +18,7 @@ export class AnimalSpritesT2 extends SpriteFactory {
 
   // --- Shared helpers ---
 
-  _drawEye(ctx, x, y, r, irisColor = '#332') {
+  _drawEye(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, irisColor: string = '#332'): void {
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.ellipse(x, y, r * 1.4, r, 0, 0, Math.PI * 2);
@@ -37,7 +37,25 @@ export class AnimalSpritesT2 extends SpriteFactory {
     ctx.fill();
   }
 
-  _drawFur(ctx, x, y, w, h, count, color) {
+  _drawXEye(ctx: CanvasRenderingContext2D, x: number, y: number, size: number): void {
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x - size, y - size);
+    ctx.lineTo(x + size, y + size);
+    ctx.moveTo(x + size, y - size);
+    ctx.lineTo(x - size, y + size);
+    ctx.stroke();
+  }
+
+  _drawShadow(ctx: CanvasRenderingContext2D, x: number, y: number, rx: number, ry: number): void {
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.beginPath();
+    ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  _drawFur(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, count: number, color: string): void {
     ctx.strokeStyle = color;
     ctx.lineWidth = 0.5;
     for (let i = 0; i < count; i++) {
@@ -50,9 +68,9 @@ export class AnimalSpritesT2 extends SpriteFactory {
     }
   }
 
-  // ===================== RACCOON (52x40, 3 frames, ground) =====================
+  // ===================== RACCOON (52x40, 6 frames, ground) =====================
 
-  _drawRaccoonBody(ctx) {
+  _drawRaccoonBody(ctx: CanvasRenderingContext2D): void {
     // Body - grey-brown, stocky
     const bg = ctx.createRadialGradient(28, 22, 3, 28, 22, 16);
     bg.addColorStop(0, '#A09888');
@@ -173,33 +191,100 @@ export class AnimalSpritesT2 extends SpriteFactory {
     ctx.restore();
   }
 
-  _generateRaccoonFrames() {
-    const frames = [
-      [30, 30, 30, 30],
-      [28, 32, 32, 28],
-      [32, 28, 28, 32],
+  _drawRaccoonLeg(ctx: CanvasRenderingContext2D, x: number, y: number, isBack: boolean): void {
+    const w = isBack ? 5 : 4;
+    // Upper leg
+    ctx.fillStyle = '#605848';
+    ctx.fillRect(x, y, w, 5);
+    // Lower leg with slight knee bend
+    ctx.fillStyle = '#504840';
+    ctx.fillRect(x, y + 4, w, 4);
+    // Dark paws
+    ctx.fillStyle = '#222';
+    ctx.fillRect(x - 1, y + 7, w + 1, 2);
+  }
+
+  _generateRaccoonFrames(): void {
+    // 5-frame walk cycle: left-forward, transition, neutral, right-forward, transition-back
+    const legFrames = [
+      // [frontLeft, frontRight, backLeft, backRight]
+      { fl: 26, fr: 33, bl: 33, br: 26 },  // frame 0: left legs forward
+      { fl: 28, fr: 31, bl: 31, br: 28 },  // frame 1: transition
+      { fl: 30, fr: 30, bl: 30, br: 30 },  // frame 2: neutral
+      { fl: 33, fr: 26, bl: 26, br: 33 },  // frame 3: right legs forward
+      { fl: 31, fr: 28, bl: 28, br: 31 },  // frame 4: transition back
     ];
 
-    frames.forEach((legYs, i) => {
+    legFrames.forEach(({ fl, fr, bl, br }, i) => {
       this._ct(`raccoon_walk_${i}`, 52, 40, (ctx) => {
-        const xPositions = [14, 20, 30, 36];
-        legYs.forEach((ly, idx) => {
-          ctx.fillStyle = '#605848';
-          ctx.fillRect(xPositions[idx], ly, 4, 5);
-          ctx.fillStyle = '#504840';
-          ctx.fillRect(xPositions[idx], ly + 4, 4, 4);
-          // Dark paws
-          ctx.fillStyle = '#222';
-          ctx.fillRect(xPositions[idx] - 1, ly + 7, 5, 2);
-        });
+        // Back legs (drawn first, behind body)
+        this._drawRaccoonLeg(ctx, 30, bl, true);
+        this._drawRaccoonLeg(ctx, 36, br, true);
+        // Front legs
+        this._drawRaccoonLeg(ctx, 14, fl, false);
+        this._drawRaccoonLeg(ctx, 20, fr, false);
+
         this._drawRaccoonBody(ctx);
       });
     });
+
+    // Death frame
+    this._ct('raccoon_dead_0', 52, 40, (ctx) => {
+      // Shadow underneath
+      this._drawShadow(ctx, 26, 32, 18, 5);
+
+      ctx.save();
+      ctx.translate(26, 28);
+      ctx.rotate(Math.PI / 2);
+      ctx.translate(-26, -28);
+
+      // Body on its side
+      const bg = ctx.createRadialGradient(28, 22, 3, 28, 22, 16);
+      bg.addColorStop(0, '#A09888');
+      bg.addColorStop(1, '#706858');
+      ctx.fillStyle = bg;
+      ctx.beginPath();
+      ctx.ellipse(28, 22, 14, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Head
+      ctx.fillStyle = '#907868';
+      ctx.beginPath();
+      ctx.arc(14, 18, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Mask
+      ctx.fillStyle = '#222';
+      ctx.fillRect(8, 15, 8, 3);
+
+      // X eyes
+      this._drawXEye(ctx, 10, 16, 2);
+      this._drawXEye(ctx, 17, 16, 1.8);
+
+      // Limp tail - drooping
+      ctx.fillStyle = '#706858';
+      ctx.beginPath();
+      ctx.ellipse(40, 24, 5, 3, 0.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#C0B8A8';
+      ctx.beginPath();
+      ctx.ellipse(43, 25, 3, 2, 0.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Limp legs sticking out
+      ctx.fillStyle = '#504840';
+      ctx.fillRect(20, 28, 3, 6);
+      ctx.fillRect(26, 29, 3, 5);
+      ctx.fillRect(32, 28, 3, 6);
+      ctx.fillRect(36, 29, 3, 5);
+
+      ctx.restore();
+    });
   }
 
-  // ===================== DUCK (44x30, 3 frames, flying) =====================
+  // ===================== DUCK (44x30, 6 frames, flying) =====================
 
-  _drawDuckBody(ctx) {
+  _drawDuckBody(ctx: CanvasRenderingContext2D): void {
     // Body - brown
     const bg = ctx.createRadialGradient(22, 16, 2, 22, 16, 12);
     bg.addColorStop(0, '#A07840');
@@ -298,12 +383,23 @@ export class AnimalSpritesT2 extends SpriteFactory {
     ctx.fill();
   }
 
-  _generateDuckFrames() {
-    // Wing flap positions
+  _drawDuckWing(ctx: CanvasRenderingContext2D, startX: number, startY: number, tipY: number, color: string): void {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.quadraticCurveTo(startX + 12, tipY, startX + 22, tipY + 1);
+    ctx.lineTo(startX + 18, startY);
+    ctx.fill();
+  }
+
+  _generateDuckFrames(): void {
+    // 5-frame wing cycle: level, half-up, full-up, half-down, full-down
     const wingData = [
-      { upY: 6, downY: 24 },   // level
-      { upY: 0, downY: 18 },   // wings up
-      { upY: 10, downY: 30 },  // wings down
+      { upY: 6, downY: 24 },   // frame 0: wings level
+      { upY: 3, downY: 20 },   // frame 1: wings halfway up
+      { upY: -1, downY: 16 },  // frame 2: wings fully up
+      { upY: 3, downY: 22 },   // frame 3: wings halfway down
+      { upY: 8, downY: 28 },   // frame 4: wings fully down
     ];
 
     wingData.forEach(({ upY, downY }, i) => {
@@ -383,11 +479,66 @@ export class AnimalSpritesT2 extends SpriteFactory {
         ctx.stroke();
       });
     });
+
+    // Death frame
+    this._ct('duck_dead_0', 44, 30, (ctx) => {
+      // Shadow underneath
+      this._drawShadow(ctx, 22, 26, 16, 4);
+
+      // Body on its side, rotated
+      ctx.save();
+      ctx.translate(22, 20);
+      ctx.rotate(Math.PI * 0.55);
+      ctx.translate(-22, -20);
+
+      // Body
+      const bg = ctx.createRadialGradient(22, 16, 2, 22, 16, 10);
+      bg.addColorStop(0, '#A07840');
+      bg.addColorStop(1, '#7A5828');
+      ctx.fillStyle = bg;
+      ctx.beginPath();
+      ctx.ellipse(22, 16, 10, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Head
+      ctx.fillStyle = '#1A6633';
+      ctx.beginPath();
+      ctx.arc(10, 14, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Beak
+      ctx.fillStyle = '#E8B830';
+      ctx.beginPath();
+      ctx.moveTo(4, 15);
+      ctx.lineTo(2, 14);
+      ctx.lineTo(2, 17);
+      ctx.lineTo(5, 16);
+      ctx.fill();
+
+      // X eyes
+      this._drawXEye(ctx, 8, 13, 1.8);
+
+      // Limp wings
+      ctx.fillStyle = '#6A4820';
+      ctx.beginPath();
+      ctx.moveTo(16, 14);
+      ctx.lineTo(20, 6);
+      ctx.lineTo(30, 8);
+      ctx.lineTo(28, 16);
+      ctx.fill();
+
+      // Limp feet
+      ctx.fillStyle = '#E88820';
+      ctx.fillRect(18, 22, 2, 4);
+      ctx.fillRect(22, 23, 2, 3);
+
+      ctx.restore();
+    });
   }
 
-  // ===================== CROW (40x28, 3 frames, flying) =====================
+  // ===================== CROW (40x28, 6 frames, flying) =====================
 
-  _drawCrowBody(ctx) {
+  _drawCrowBody(ctx: CanvasRenderingContext2D): void {
     // Body - black with purple/blue sheen
     const bg = ctx.createRadialGradient(20, 14, 2, 20, 14, 11);
     bg.addColorStop(0, '#333340');
@@ -497,11 +648,14 @@ export class AnimalSpritesT2 extends SpriteFactory {
     ctx.stroke();
   }
 
-  _generateCrowFrames() {
+  _generateCrowFrames(): void {
+    // 5-frame wing cycle: level, half-up, full-up, half-down, full-down
     const wingData = [
-      { upY: 4, downY: 22 },   // level
-      { upY: -2, downY: 16 },  // wings up
-      { upY: 8, downY: 28 },   // wings down
+      { upY: 4, downY: 22 },   // frame 0: wings level
+      { upY: 1, downY: 18 },   // frame 1: wings halfway up
+      { upY: -3, downY: 14 },  // frame 2: wings fully up
+      { upY: 1, downY: 20 },   // frame 3: wings halfway down
+      { upY: 7, downY: 26 },   // frame 4: wings fully down
     ];
 
     wingData.forEach(({ upY, downY }, i) => {
@@ -546,11 +700,69 @@ export class AnimalSpritesT2 extends SpriteFactory {
         this._drawCrowBody(ctx);
       });
     });
+
+    // Death frame
+    this._ct('crow_dead_0', 40, 28, (ctx) => {
+      // Shadow underneath
+      this._drawShadow(ctx, 20, 24, 14, 3);
+
+      ctx.save();
+      ctx.translate(20, 18);
+      ctx.rotate(Math.PI * 0.5);
+      ctx.translate(-20, -18);
+
+      // Body on its side
+      const bg = ctx.createRadialGradient(20, 14, 2, 20, 14, 9);
+      bg.addColorStop(0, '#333340');
+      bg.addColorStop(1, '#111118');
+      ctx.fillStyle = bg;
+      ctx.beginPath();
+      ctx.ellipse(20, 14, 9, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Head
+      ctx.fillStyle = '#1A1A22';
+      ctx.beginPath();
+      ctx.arc(10, 12, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Beak
+      ctx.fillStyle = '#333';
+      ctx.beginPath();
+      ctx.moveTo(5, 12);
+      ctx.lineTo(3, 11);
+      ctx.lineTo(3, 13);
+      ctx.fill();
+
+      // X eyes
+      this._drawXEye(ctx, 9, 11, 1.5);
+
+      // Limp wings
+      ctx.fillStyle = '#1A1A22';
+      ctx.beginPath();
+      ctx.moveTo(14, 12);
+      ctx.lineTo(18, 4);
+      ctx.lineTo(28, 6);
+      ctx.lineTo(26, 14);
+      ctx.fill();
+
+      // Limp feet
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(16, 19);
+      ctx.lineTo(14, 23);
+      ctx.moveTo(20, 19);
+      ctx.lineTo(22, 23);
+      ctx.stroke();
+
+      ctx.restore();
+    });
   }
 
-  // ===================== HARE (50x40, 3 frames, ground) =====================
+  // ===================== HARE (50x40, 6 frames, ground) =====================
 
-  _drawHareBody(ctx) {
+  _drawHareBody(ctx: CanvasRenderingContext2D): void {
     // Body - brown/tan, elongated and sleek
     const bg = ctx.createRadialGradient(26, 22, 3, 26, 22, 15);
     bg.addColorStop(0, '#C4A070');
@@ -635,12 +847,14 @@ export class AnimalSpritesT2 extends SpriteFactory {
     ctx.fill();
   }
 
-  _generateHareFrames() {
-    // Running animation: extended stride
+  _generateHareFrames(): void {
+    // 5-frame running cycle with extended stride and body bob
     const legSets = [
-      { fl: 28, fr: 28, bl: 26, br: 26, bodyOff: 0 },   // neutral stance
-      { fl: 26, fr: 30, bl: 30, br: 24, bodyOff: -2 },   // stride out
-      { fl: 30, fr: 26, bl: 24, br: 30, bodyOff: 1 },    // stride back
+      { fl: 24, fr: 32, bl: 32, br: 24, bodyOff: -1 },   // frame 0: left legs forward
+      { fl: 27, fr: 30, bl: 30, br: 27, bodyOff: -1 },   // frame 1: transition
+      { fl: 28, fr: 28, bl: 28, br: 28, bodyOff: 0 },    // frame 2: neutral stance
+      { fl: 32, fr: 24, bl: 24, br: 32, bodyOff: -1 },   // frame 3: right legs forward
+      { fl: 30, fr: 27, bl: 27, br: 30, bodyOff: -1 },   // frame 4: transition back
     ];
 
     legSets.forEach(({ fl, fr, bl, br, bodyOff }, i) => {
@@ -679,11 +893,71 @@ export class AnimalSpritesT2 extends SpriteFactory {
         ctx.restore();
       });
     });
+
+    // Death frame
+    this._ct('hare_dead_0', 50, 40, (ctx) => {
+      // Shadow underneath
+      this._drawShadow(ctx, 25, 34, 18, 4);
+
+      ctx.save();
+      ctx.translate(25, 28);
+      ctx.rotate(Math.PI / 2);
+      ctx.translate(-25, -28);
+
+      // Body on its side
+      const bg = ctx.createRadialGradient(26, 22, 3, 26, 22, 13);
+      bg.addColorStop(0, '#C4A070');
+      bg.addColorStop(1, '#907040');
+      ctx.fillStyle = bg;
+      ctx.beginPath();
+      ctx.ellipse(26, 22, 13, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Head
+      ctx.fillStyle = '#B09060';
+      ctx.beginPath();
+      ctx.ellipse(12, 18, 7, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Floppy ears (limp)
+      ctx.fillStyle = '#A08050';
+      ctx.beginPath();
+      ctx.ellipse(8, 12, 2.5, 8, -0.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#DDAA88';
+      ctx.beginPath();
+      ctx.ellipse(8, 12, 1.2, 6, -0.6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // X eyes
+      this._drawXEye(ctx, 9, 17, 2);
+
+      // Nose
+      ctx.fillStyle = '#997766';
+      ctx.beginPath();
+      ctx.arc(5, 20, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Limp legs
+      ctx.fillStyle = '#907040';
+      ctx.fillRect(18, 28, 3, 7);
+      ctx.fillRect(24, 29, 3, 6);
+      ctx.fillRect(30, 28, 4, 7);
+      ctx.fillRect(35, 29, 4, 6);
+
+      // White tail
+      ctx.fillStyle = '#eee';
+      ctx.beginPath();
+      ctx.arc(40, 20, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    });
   }
 
-  // ===================== TURKEY (56x48, 3 frames, ground) =====================
+  // ===================== TURKEY (56x48, 6 frames, ground) =====================
 
-  _drawTurkeyBody(ctx) {
+  _drawTurkeyBody(ctx: CanvasRenderingContext2D, fanCollapsed: boolean): void {
     // Body - brown, plump
     const bg = ctx.createRadialGradient(28, 28, 3, 28, 28, 16);
     bg.addColorStop(0, '#8B6340');
@@ -714,34 +988,45 @@ export class AnimalSpritesT2 extends SpriteFactory {
     ctx.ellipse(30, 26, 12, 8, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Fan-shaped tail feathers
-    ctx.fillStyle = '#3A2210';
-    ctx.beginPath();
-    ctx.moveTo(40, 20);
-    ctx.quadraticCurveTo(56, 8, 54, 18);
-    ctx.lineTo(54, 30);
-    ctx.quadraticCurveTo(56, 38, 40, 32);
-    ctx.fill();
-
-    // Tail feather lighter tips
-    ctx.fillStyle = '#AA8860';
-    for (let t = 0; t < 5; t++) {
-      const angle = -0.5 + t * 0.25;
-      const tipX = 50 + Math.cos(angle) * 4;
-      const tipY = 14 + t * 4 + Math.sin(angle) * 2;
+    if (fanCollapsed) {
+      // Collapsed tail (for death frame)
+      ctx.fillStyle = '#3A2210';
       ctx.beginPath();
-      ctx.ellipse(tipX, tipY, 3, 1.5, angle, 0, Math.PI * 2);
+      ctx.moveTo(40, 22);
+      ctx.lineTo(50, 20);
+      ctx.lineTo(50, 30);
+      ctx.lineTo(40, 30);
       ctx.fill();
-    }
-
-    // Tail feather lines
-    ctx.strokeStyle = '#5A3A20';
-    ctx.lineWidth = 0.6;
-    for (let t = 0; t < 6; t++) {
+    } else {
+      // Fan-shaped tail feathers
+      ctx.fillStyle = '#3A2210';
       ctx.beginPath();
-      ctx.moveTo(42, 22 + t * 2);
-      ctx.lineTo(52, 12 + t * 4);
-      ctx.stroke();
+      ctx.moveTo(40, 20);
+      ctx.quadraticCurveTo(56, 8, 54, 18);
+      ctx.lineTo(54, 30);
+      ctx.quadraticCurveTo(56, 38, 40, 32);
+      ctx.fill();
+
+      // Tail feather lighter tips
+      ctx.fillStyle = '#AA8860';
+      for (let t = 0; t < 5; t++) {
+        const angle = -0.5 + t * 0.25;
+        const tipX = 50 + Math.cos(angle) * 4;
+        const tipY = 14 + t * 4 + Math.sin(angle) * 2;
+        ctx.beginPath();
+        ctx.ellipse(tipX, tipY, 3, 1.5, angle, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Tail feather lines
+      ctx.strokeStyle = '#5A3A20';
+      ctx.lineWidth = 0.6;
+      for (let t = 0; t < 6; t++) {
+        ctx.beginPath();
+        ctx.moveTo(42, 22 + t * 2);
+        ctx.lineTo(52, 12 + t * 4);
+        ctx.stroke();
+      }
     }
 
     // Neck
@@ -792,48 +1077,131 @@ export class AnimalSpritesT2 extends SpriteFactory {
     ctx.lineTo(2, 12);
     ctx.lineTo(4, 11);
     ctx.fill();
-
-    // Eye
-    this._drawEye(ctx, 8, 9, 1.5, '#442200');
   }
 
-  _generateTurkeyFrames() {
-    const frames = [
-      [38, 38, 38, 38],
-      [36, 40, 40, 36],
-      [40, 36, 36, 40],
+  _drawTurkeyLeg(ctx: CanvasRenderingContext2D, x: number, y: number): void {
+    // Thick upper leg
+    ctx.fillStyle = '#886655';
+    ctx.fillRect(x, y, 4, 4);
+    // Scaly lower leg
+    ctx.fillStyle = '#998866';
+    ctx.fillRect(x, y + 3, 4, 4);
+    // Feet with toes
+    ctx.strokeStyle = '#886655';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, y + 7);
+    ctx.lineTo(x - 2, y + 9);
+    ctx.moveTo(x + 2, y + 7);
+    ctx.lineTo(x + 2, y + 9);
+    ctx.moveTo(x + 4, y + 7);
+    ctx.lineTo(x + 6, y + 9);
+    ctx.stroke();
+  }
+
+  _generateTurkeyFrames(): void {
+    // 5-frame walk cycle
+    const legFrames = [
+      { fl: 36, fr: 42, bl: 42, br: 36 },  // frame 0: left legs forward
+      { fl: 38, fr: 40, bl: 40, br: 38 },  // frame 1: transition
+      { fl: 38, fr: 38, bl: 38, br: 38 },  // frame 2: neutral
+      { fl: 42, fr: 36, bl: 36, br: 42 },  // frame 3: right legs forward
+      { fl: 40, fr: 38, bl: 38, br: 40 },  // frame 4: transition back
     ];
 
-    frames.forEach((legYs, i) => {
+    legFrames.forEach(({ fl, fr, bl, br }, i) => {
       this._ct(`turkey_walk_${i}`, 56, 48, (ctx) => {
-        const xPositions = [18, 24, 32, 38];
-        legYs.forEach((ly, idx) => {
-          // Thick legs
-          ctx.fillStyle = '#886655';
-          ctx.fillRect(xPositions[idx], ly, 4, 4);
-          // Scaly lower leg
-          ctx.fillStyle = '#998866';
-          ctx.fillRect(xPositions[idx], ly + 3, 4, 4);
-          // Feet with toes
-          ctx.strokeStyle = '#886655';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(xPositions[idx], ly + 7);
-          ctx.lineTo(xPositions[idx] - 2, ly + 9);
-          ctx.moveTo(xPositions[idx] + 2, ly + 7);
-          ctx.lineTo(xPositions[idx] + 2, ly + 9);
-          ctx.moveTo(xPositions[idx] + 4, ly + 7);
-          ctx.lineTo(xPositions[idx] + 6, ly + 9);
-          ctx.stroke();
-        });
-        this._drawTurkeyBody(ctx);
+        // Back legs
+        this._drawTurkeyLeg(ctx, 32, bl);
+        this._drawTurkeyLeg(ctx, 38, br);
+        // Front legs
+        this._drawTurkeyLeg(ctx, 18, fl);
+        this._drawTurkeyLeg(ctx, 24, fr);
+
+        this._drawTurkeyBody(ctx, false);
+
+        // Eye (on top of body drawing)
+        this._drawEye(ctx, 8, 9, 1.5, '#442200');
       });
+    });
+
+    // Death frame
+    this._ct('turkey_dead_0', 56, 48, (ctx) => {
+      // Shadow underneath
+      this._drawShadow(ctx, 28, 42, 20, 5);
+
+      ctx.save();
+      ctx.translate(28, 36);
+      ctx.rotate(Math.PI / 2);
+      ctx.translate(-28, -36);
+
+      // Body on its side
+      const bg = ctx.createRadialGradient(28, 28, 3, 28, 28, 14);
+      bg.addColorStop(0, '#8B6340');
+      bg.addColorStop(1, '#5A3A20');
+      ctx.fillStyle = bg;
+      ctx.beginPath();
+      ctx.ellipse(28, 28, 14, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Collapsed fan tail
+      ctx.fillStyle = '#3A2210';
+      ctx.beginPath();
+      ctx.moveTo(40, 24);
+      ctx.lineTo(48, 22);
+      ctx.lineTo(48, 32);
+      ctx.lineTo(40, 32);
+      ctx.fill();
+
+      // Neck (limp)
+      ctx.fillStyle = '#7B3535';
+      ctx.fillRect(14, 18, 6, 12);
+
+      // Head
+      ctx.fillStyle = '#778899';
+      ctx.beginPath();
+      ctx.arc(12, 16, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Red skin
+      ctx.fillStyle = '#CC3333';
+      ctx.beginPath();
+      ctx.arc(10, 14, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Wattle drooping
+      ctx.fillStyle = '#CC2222';
+      ctx.beginPath();
+      ctx.moveTo(7, 17);
+      ctx.quadraticCurveTo(5, 22, 8, 23);
+      ctx.quadraticCurveTo(10, 21, 9, 17);
+      ctx.fill();
+
+      // X eyes
+      this._drawXEye(ctx, 10, 15, 1.8);
+
+      // Beak
+      ctx.fillStyle = '#CCAA66';
+      ctx.beginPath();
+      ctx.moveTo(7, 16);
+      ctx.lineTo(5, 16);
+      ctx.lineTo(6, 18);
+      ctx.fill();
+
+      // Limp legs
+      ctx.fillStyle = '#886655';
+      ctx.fillRect(22, 36, 3, 6);
+      ctx.fillRect(28, 37, 3, 5);
+      ctx.fillRect(34, 36, 3, 6);
+      ctx.fillRect(38, 37, 3, 5);
+
+      ctx.restore();
     });
   }
 
-  // ===================== BADGER (50x36, 3 frames, ground) =====================
+  // ===================== BADGER (50x36, 6 frames, ground) =====================
 
-  _drawBadgerBody(ctx) {
+  _drawBadgerBody(ctx: CanvasRenderingContext2D): void {
     // Body - dark, stocky
     const bg = ctx.createRadialGradient(26, 20, 3, 26, 20, 16);
     bg.addColorStop(0, '#555555');
@@ -937,39 +1305,127 @@ export class AnimalSpritesT2 extends SpriteFactory {
     ctx.fill();
   }
 
-  _generateBadgerFrames() {
-    const frames = [
-      [26, 26, 26, 26],
-      [24, 28, 28, 24],
-      [28, 24, 24, 28],
+  _drawBadgerLeg(ctx: CanvasRenderingContext2D, x: number, y: number): void {
+    // Short stocky legs
+    ctx.fillStyle = '#2A2A2A';
+    ctx.fillRect(x, y, 5, 5);
+    ctx.fillStyle = '#222222';
+    ctx.fillRect(x, y + 4, 5, 3);
+    // Big clawed paws
+    ctx.fillStyle = '#1A1A1A';
+    ctx.fillRect(x - 1, y + 6, 6, 3);
+    // Claws
+    ctx.strokeStyle = '#999';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(x - 1, y + 8);
+    ctx.lineTo(x - 2, y + 10);
+    ctx.moveTo(x + 1, y + 8);
+    ctx.lineTo(x + 1, y + 10);
+    ctx.moveTo(x + 3, y + 8);
+    ctx.lineTo(x + 4, y + 10);
+    ctx.stroke();
+  }
+
+  _generateBadgerFrames(): void {
+    // 5-frame walk cycle
+    const legFrames = [
+      { fl: 23, fr: 29, bl: 29, br: 23 },  // frame 0: left legs forward
+      { fl: 25, fr: 28, bl: 28, br: 25 },  // frame 1: transition
+      { fl: 26, fr: 26, bl: 26, br: 26 },  // frame 2: neutral
+      { fl: 29, fr: 23, bl: 23, br: 29 },  // frame 3: right legs forward
+      { fl: 28, fr: 25, bl: 25, br: 28 },  // frame 4: transition back
     ];
 
-    frames.forEach((legYs, i) => {
+    legFrames.forEach(({ fl, fr, bl, br }, i) => {
       this._ct(`badger_walk_${i}`, 50, 36, (ctx) => {
-        const xPositions = [12, 18, 30, 36];
-        legYs.forEach((ly, idx) => {
-          // Short stocky legs
-          ctx.fillStyle = '#2A2A2A';
-          ctx.fillRect(xPositions[idx], ly, 5, 5);
-          ctx.fillStyle = '#222222';
-          ctx.fillRect(xPositions[idx], ly + 4, 5, 3);
-          // Big clawed paws
-          ctx.fillStyle = '#1A1A1A';
-          ctx.fillRect(xPositions[idx] - 1, ly + 6, 6, 3);
-          // Claws
-          ctx.strokeStyle = '#999';
-          ctx.lineWidth = 0.5;
-          ctx.beginPath();
-          ctx.moveTo(xPositions[idx] - 1, ly + 8);
-          ctx.lineTo(xPositions[idx] - 2, ly + 10);
-          ctx.moveTo(xPositions[idx] + 1, ly + 8);
-          ctx.lineTo(xPositions[idx] + 1, ly + 10);
-          ctx.moveTo(xPositions[idx] + 3, ly + 8);
-          ctx.lineTo(xPositions[idx] + 4, ly + 10);
-          ctx.stroke();
-        });
+        // Back legs (drawn first)
+        this._drawBadgerLeg(ctx, 30, bl);
+        this._drawBadgerLeg(ctx, 36, br);
+        // Front legs
+        this._drawBadgerLeg(ctx, 12, fl);
+        this._drawBadgerLeg(ctx, 18, fr);
+
         this._drawBadgerBody(ctx);
       });
+    });
+
+    // Death frame
+    this._ct('badger_dead_0', 50, 36, (ctx) => {
+      // Shadow underneath
+      this._drawShadow(ctx, 25, 30, 18, 4);
+
+      ctx.save();
+      ctx.translate(25, 24);
+      ctx.rotate(Math.PI / 2);
+      ctx.translate(-25, -24);
+
+      // Body on its side
+      const bg = ctx.createRadialGradient(26, 20, 3, 26, 20, 14);
+      bg.addColorStop(0, '#555555');
+      bg.addColorStop(1, '#333333');
+      ctx.fillStyle = bg;
+      ctx.beginPath();
+      ctx.ellipse(26, 20, 14, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Head
+      ctx.fillStyle = '#444';
+      ctx.beginPath();
+      ctx.ellipse(12, 18, 7, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // White face stripes (simplified for side view)
+      ctx.fillStyle = '#EEE';
+      ctx.beginPath();
+      ctx.moveTo(5, 14);
+      ctx.quadraticCurveTo(8, 13, 12, 13);
+      ctx.lineTo(12, 15);
+      ctx.quadraticCurveTo(8, 15, 5, 16);
+      ctx.fill();
+
+      // Black stripe through eye
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.moveTo(5, 16);
+      ctx.quadraticCurveTo(8, 15.5, 12, 16);
+      ctx.lineTo(12, 19);
+      ctx.quadraticCurveTo(8, 18.5, 5, 19);
+      ctx.fill();
+
+      // White lower stripe
+      ctx.fillStyle = '#EEE';
+      ctx.beginPath();
+      ctx.moveTo(5, 19);
+      ctx.quadraticCurveTo(8, 19, 12, 19);
+      ctx.lineTo(12, 21);
+      ctx.quadraticCurveTo(8, 21, 5, 21);
+      ctx.fill();
+
+      // X eyes
+      this._drawXEye(ctx, 8, 17, 1.8);
+      this._drawXEye(ctx, 14, 17, 1.5);
+
+      // Black nose
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.arc(5, 20, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Limp legs with claws
+      ctx.fillStyle = '#2A2A2A';
+      ctx.fillRect(18, 26, 4, 6);
+      ctx.fillRect(24, 27, 4, 5);
+      ctx.fillRect(30, 26, 4, 6);
+      ctx.fillRect(35, 27, 4, 5);
+
+      // Short tail
+      ctx.fillStyle = '#444';
+      ctx.beginPath();
+      ctx.ellipse(40, 18, 3, 2.5, 0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
     });
   }
 }

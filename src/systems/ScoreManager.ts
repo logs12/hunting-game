@@ -1,7 +1,17 @@
-import { GAME } from '../constants.js';
-import { cloudSaveScore, cloudLoadScore } from '../telegram.js';
+import { GAME } from '../constants';
+import { cloudSaveScore, cloudLoadScore } from '../telegram';
 
 export class ScoreManager {
+  score: number;
+  lives: number;
+  combo: number;
+  comboMultiplier: number;
+  lastKillTime: number;
+  highScore: number;
+  onScoreChange: ((score: number, earned: number) => void) | null;
+  onLifeLost: ((lives: number) => void) | null;
+  onComboChange: ((multiplier: number) => void) | null;
+
   constructor() {
     this.score = 0;
     this.lives = GAME.LIVES;
@@ -22,7 +32,7 @@ export class ScoreManager {
     });
   }
 
-  addKill(points, time) {
+  addKill(points: number, time: number): number {
     // Combo system
     if (time - this.lastKillTime < GAME.COMBO_TIMEOUT) {
       this.combo++;
@@ -42,7 +52,14 @@ export class ScoreManager {
     return earned;
   }
 
-  loseLife() {
+  spendScore(amount: number): boolean {
+    if (this.score < amount) return false;
+    this.score -= amount;
+    if (this.onScoreChange) this.onScoreChange(this.score, -amount);
+    return true;
+  }
+
+  loseLife(): number {
     this.lives--;
     this.combo = 0;
     this.comboMultiplier = 1;
@@ -50,11 +67,11 @@ export class ScoreManager {
     return this.lives;
   }
 
-  isGameOver() {
+  isGameOver(): boolean {
     return this.lives <= 0;
   }
 
-  saveHighScore() {
+  saveHighScore(): boolean {
     if (this.score > this.highScore) {
       this.highScore = this.score;
       localStorage.setItem('huntingGameHighScore', this.score.toString());

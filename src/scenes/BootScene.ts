@@ -1,14 +1,14 @@
 import Phaser from 'phaser';
-import { HunterSprite } from '../sprites/HunterSprite.js';
-import { AnimalSprites } from '../sprites/AnimalSprites.js';
-import { AnimalSpritesT1 } from '../sprites/AnimalSpritesT1.js';
-import { AnimalSpritesT2 } from '../sprites/AnimalSpritesT2.js';
-import { AnimalSpritesT3 } from '../sprites/AnimalSpritesT3.js';
-import { AnimalSpritesT4 } from '../sprites/AnimalSpritesT4.js';
-import { AnimalSpritesT5 } from '../sprites/AnimalSpritesT5.js';
-import { WeaponSprites } from '../sprites/WeaponSprites.js';
-import { EffectSprites } from '../sprites/EffectSprites.js';
-import { GAME, ANIMALS } from '../constants.js';
+import { HunterSprite } from '../sprites/HunterSprite';
+import { AnimalSprites } from '../sprites/AnimalSprites';
+import { AnimalSpritesT1 } from '../sprites/AnimalSpritesT1';
+import { AnimalSpritesT2 } from '../sprites/AnimalSpritesT2';
+import { AnimalSpritesT3 } from '../sprites/AnimalSpritesT3';
+import { AnimalSpritesT4 } from '../sprites/AnimalSpritesT4';
+import { AnimalSpritesT5 } from '../sprites/AnimalSpritesT5';
+import { WeaponSprites } from '../sprites/WeaponSprites';
+import { EffectSprites } from '../sprites/EffectSprites';
+import { GAME, ANIMALS } from '../constants';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -35,7 +35,7 @@ export class BootScene extends Phaser.Scene {
       new AnimalSpritesT5(this).generate();
 
       // Register walk animations for all animals
-      const frameRates = {
+      const frameRates: Record<string, number> = {
         rabbit: 10, fox: 9, deer: 7, boar: 10, wolf: 11,
         bear: 5, eagle: 6, snake: 8, moose: 5, pheasant: 10,
         // Tier 1
@@ -58,6 +58,10 @@ export class BootScene extends Phaser.Scene {
           frames: [
             { key: `${key}_walk_0` },
             { key: `${key}_walk_1` },
+            { key: `${key}_walk_2` },
+            { key: `${key}_walk_3` },
+            { key: `${key}_walk_4` },
+            { key: `${key}_walk_3` },
             { key: `${key}_walk_2` },
             { key: `${key}_walk_1` },
           ],
@@ -103,13 +107,14 @@ export class BootScene extends Phaser.Scene {
     });
   }
 
-  _generateBackground() {
+  _generateBackground(): void {
     const W = GAME.WIDTH;
     const H = GAME.HEIGHT;
     const canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d')!;
+    ctx.imageSmoothingEnabled = false;
 
     const gRatio = GAME.GROUND_TOP / H;
 
@@ -169,7 +174,7 @@ export class BootScene extends Phaser.Scene {
     this.textures.addCanvas('background', canvas);
   }
 
-  _drawCloud(ctx, x, y, size) {
+  _drawCloud(ctx: CanvasRenderingContext2D, x: number, y: number, size: number): void {
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
     ctx.arc(x + size * 0.8, y - size * 0.2, size * 0.7, 0, Math.PI * 2);

@@ -1,7 +1,8 @@
-import { ANIMALS } from '../constants.js';
-import { Animal } from './Animal.js';
+import Phaser from 'phaser';
+import { ANIMALS } from '../constants';
+import { Animal } from './Animal';
 
-const WEIGHTS = {
+const WEIGHTS: Record<string, number> = {
   // Tier 1
   rabbit: 30, fox: 25, pheasant: 25, sparrow: 28, mouse: 30, frog: 22,
   // Tier 2
@@ -16,14 +17,14 @@ const WEIGHTS = {
   rhino: 3, hippo: 2, gorilla: 3, golden_eagle: 4, mammoth: 2, dragon: 2,
 };
 
-const BOSS_RULES = {
+const BOSS_RULES: Record<string, (w: number) => boolean> = {
   bear: (w) => w % 5 === 0,
   mammoth: (w) => w >= 12 && w % 8 === 0,
   dragon: (w) => w >= 15 && w % 10 === 0,
 };
 
 export class AnimalTypes {
-  static getAvailableTypes(waveNum) {
+  static getAvailableTypes(waveNum: number): string[] {
     return Object.entries(ANIMALS)
       .filter(([, cfg]) => waveNum >= cfg.minWave)
       .filter(([key]) => {
@@ -34,7 +35,7 @@ export class AnimalTypes {
       .map(([key]) => key);
   }
 
-  static getWeightedRandom(waveNum) {
+  static getWeightedRandom(waveNum: number): string {
     const types = this.getAvailableTypes(waveNum);
     if (types.length === 0) return 'rabbit';
 
@@ -50,7 +51,7 @@ export class AnimalTypes {
     return available[available.length - 1].type;
   }
 
-  static spawn(scene, waveNum) {
+  static spawn(scene: Phaser.Scene, waveNum: number): Animal {
     const type = this.getWeightedRandom(waveNum);
     return new Animal(scene, type, waveNum);
   }

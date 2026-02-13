@@ -1,84 +1,84 @@
-import { SpriteFactory } from './SpriteFactory.js';
+import { SpriteFactory } from './SpriteFactory';
 
 const WEAPON_SCALE = 0.625;
 
 export class WeaponSprites extends SpriteFactory {
-  _ctw(key, w, h, drawFn) {
+  _ctw(key: string, w: number, h: number, drawFn: (ctx: CanvasRenderingContext2D, w: number, h: number) => void): void {
     this.createTexture(key, w, h, drawFn, WEAPON_SCALE);
   }
 
-  generate() {
+  generate(): void {
     // --- Projectile textures ---
 
-    // Bullet (pistol) — small pointed brass round
-    this.createTexture('bullet', 5, 2, (ctx) => {
+    // Bullet (pistol) — pointed brass round (10×4)
+    this.createTexture('bullet', 10, 4, (ctx) => {
       // Brass body
-      const grad = ctx.createLinearGradient(0, 0, 5, 0);
+      const grad = ctx.createLinearGradient(0, 0, 10, 0);
       grad.addColorStop(0, '#996633');
       grad.addColorStop(0.5, '#cc9944');
       grad.addColorStop(1, '#886633');
       ctx.fillStyle = grad;
-      ctx.fillRect(0, 0.3, 3, 1.4);
+      ctx.fillRect(0, 0.6, 6, 2.8);
       // Pointed copper tip
       ctx.fillStyle = '#aa6633';
       ctx.beginPath();
-      ctx.moveTo(3, 0); ctx.lineTo(5, 1); ctx.lineTo(3, 2);
+      ctx.moveTo(6, 0); ctx.lineTo(10, 2); ctx.lineTo(6, 4);
       ctx.fill();
       // Specular
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
-      ctx.fillRect(1, 0.3, 2, 0.5);
+      ctx.fillRect(1, 0.6, 4, 1);
     });
 
-    // Pellet (shotgun) — tiny grey lead ball
-    this.createTexture('pellet', 3, 3, (ctx) => {
-      const grad = ctx.createRadialGradient(1.2, 1, 0.3, 1.5, 1.5, 1.5);
+    // Pellet (shotgun) — grey lead ball (6×6)
+    this.createTexture('pellet', 6, 6, (ctx) => {
+      const grad = ctx.createRadialGradient(2.4, 2, 0.5, 3, 3, 3);
       grad.addColorStop(0, '#aaa');
       grad.addColorStop(1, '#555');
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.arc(1.5, 1.5, 1.4, 0, Math.PI * 2);
+      ctx.arc(3, 3, 2.8, 0, Math.PI * 2);
       ctx.fill();
     });
 
-    // Rifle bullet — long pointed with dark jacket
-    this.createTexture('rifle_bullet', 8, 2, (ctx) => {
-      const grad = ctx.createLinearGradient(0, 0, 6, 0);
+    // Rifle bullet — long pointed with dark jacket (14×4)
+    this.createTexture('rifle_bullet', 14, 4, (ctx) => {
+      const grad = ctx.createLinearGradient(0, 0, 10, 0);
       grad.addColorStop(0, '#996633');
       grad.addColorStop(0.5, '#cc9944');
       grad.addColorStop(1, '#886633');
       ctx.fillStyle = grad;
-      ctx.fillRect(0, 0.2, 5, 1.6);
+      ctx.fillRect(0, 0.4, 9, 3.2);
       // Pointed dark jacket tip
       ctx.fillStyle = '#554433';
       ctx.beginPath();
-      ctx.moveTo(5, 0); ctx.lineTo(8, 1); ctx.lineTo(5, 2);
+      ctx.moveTo(9, 0); ctx.lineTo(14, 2); ctx.lineTo(9, 4);
       ctx.fill();
       // Specular
       ctx.fillStyle = 'rgba(255,255,255,0.25)';
-      ctx.fillRect(1, 0.2, 3, 0.5);
+      ctx.fillRect(1, 0.4, 6, 1);
     });
 
-    // Machinegun tracer — brass with faint tracer glow
-    this.createTexture('mg_bullet', 6, 2, (ctx) => {
+    // Machinegun tracer — brass with faint tracer glow (12×4)
+    this.createTexture('mg_bullet', 12, 4, (ctx) => {
       // Faint tracer trail
       ctx.fillStyle = 'rgba(255,180,50,0.2)';
-      ctx.fillRect(0, 0.3, 2, 1.4);
+      ctx.fillRect(0, 0.6, 4, 2.8);
       // Brass body
-      const grad = ctx.createLinearGradient(1, 0, 6, 0);
+      const grad = ctx.createLinearGradient(2, 0, 12, 0);
       grad.addColorStop(0, '#996633');
       grad.addColorStop(0.5, '#cc9944');
       grad.addColorStop(1, '#886633');
       ctx.fillStyle = grad;
-      ctx.fillRect(1, 0.3, 3.5, 1.4);
+      ctx.fillRect(2, 0.6, 7, 2.8);
       // Pointed tip
       ctx.fillStyle = '#775533';
       ctx.beginPath();
-      ctx.moveTo(4.5, 0); ctx.lineTo(6, 1); ctx.lineTo(4.5, 2);
+      ctx.moveTo(9, 0); ctx.lineTo(12, 2); ctx.lineTo(9, 4);
       ctx.fill();
       // Tracer glow at base
       ctx.fillStyle = 'rgba(255,150,50,0.4)';
       ctx.beginPath();
-      ctx.arc(0.5, 1, 0.8, 0, Math.PI * 2);
+      ctx.arc(1, 2, 1.5, 0, Math.PI * 2);
       ctx.fill();
     });
 
@@ -420,73 +420,72 @@ export class WeaponSprites extends SpriteFactory {
     // --- NEW Projectile textures ---
     // =====================================================
 
-    // Pebble — small grey/brown round stone
-    this.createTexture('pebble', 4, 4, (ctx) => {
-      const grad = ctx.createRadialGradient(1.5, 1.5, 0, 2, 2, 2.2);
+    // Pebble — grey/brown round stone (8×8)
+    this.createTexture('pebble', 8, 8, (ctx) => {
+      const grad = ctx.createRadialGradient(3, 3, 0, 4, 4, 4);
       grad.addColorStop(0, '#b8a89a');
       grad.addColorStop(0.5, '#8a7a6a');
       grad.addColorStop(1, '#6a5a4a');
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.arc(2, 2, 2, 0, Math.PI * 2);
+      ctx.arc(4, 4, 3.8, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,0.25)';
       ctx.beginPath();
-      ctx.arc(1.4, 1.2, 0.8, 0, Math.PI * 2);
+      ctx.arc(2.8, 2.4, 1.5, 0, Math.PI * 2);
       ctx.fill();
     });
 
-    // Bolt — crossbow bolt, dark shaft with pointed tip
-    this.createTexture('bolt', 12, 3, (ctx) => {
+    // Bolt — crossbow bolt, dark shaft with pointed tip (18×5)
+    this.createTexture('bolt', 18, 5, (ctx) => {
       // Shaft
-      const shaftGrad = ctx.createLinearGradient(0, 0, 12, 0);
+      const shaftGrad = ctx.createLinearGradient(0, 0, 18, 0);
       shaftGrad.addColorStop(0, '#5a4030');
       shaftGrad.addColorStop(0.5, '#7a5a40');
       shaftGrad.addColorStop(1, '#4a3020');
       ctx.fillStyle = shaftGrad;
-      ctx.fillRect(0, 0.8, 10, 1.4);
+      ctx.fillRect(0, 1.2, 15, 2.6);
       // Tip (pointed)
       ctx.fillStyle = '#888';
       ctx.beginPath();
-      ctx.moveTo(9, 0.5);
-      ctx.lineTo(12, 1.5);
-      ctx.lineTo(9, 2.5);
+      ctx.moveTo(14, 0.5);
+      ctx.lineTo(18, 2.5);
+      ctx.lineTo(14, 4.5);
       ctx.closePath();
       ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
       ctx.beginPath();
-      ctx.moveTo(9.5, 0.8);
-      ctx.lineTo(11.5, 1.5);
-      ctx.lineTo(9.5, 1.5);
+      ctx.moveTo(14.5, 1);
+      ctx.lineTo(17, 2.5);
+      ctx.lineTo(14.5, 2.5);
       ctx.closePath();
       ctx.fill();
       // Fletching
       ctx.fillStyle = '#aa3333';
       ctx.beginPath();
-      ctx.moveTo(0, 0); ctx.lineTo(2.5, 0.8); ctx.lineTo(0, 0.8);
+      ctx.moveTo(0, 0); ctx.lineTo(4, 1.2); ctx.lineTo(0, 1.2);
       ctx.fill();
-      ctx.fillStyle = '#aa3333';
       ctx.beginPath();
-      ctx.moveTo(0, 3); ctx.lineTo(2.5, 2.2); ctx.lineTo(0, 2.2);
+      ctx.moveTo(0, 5); ctx.lineTo(4, 3.8); ctx.lineTo(0, 3.8);
       ctx.fill();
     });
 
-    // Sniper bullet — very long needle-like pointed round
-    this.createTexture('sniper_bullet', 12, 2, (ctx) => {
-      const grad = ctx.createLinearGradient(0, 0, 8, 0);
+    // Sniper bullet — long needle-like pointed round (18×4)
+    this.createTexture('sniper_bullet', 18, 4, (ctx) => {
+      const grad = ctx.createLinearGradient(0, 0, 12, 0);
       grad.addColorStop(0, '#886633');
       grad.addColorStop(0.5, '#bb8844');
       grad.addColorStop(1, '#776633');
       ctx.fillStyle = grad;
-      ctx.fillRect(0, 0.3, 7, 1.4);
+      ctx.fillRect(0, 0.6, 11, 2.8);
       // Long pointed dark jacket tip
       ctx.fillStyle = '#443322';
       ctx.beginPath();
-      ctx.moveTo(7, 0); ctx.lineTo(12, 1); ctx.lineTo(7, 2);
+      ctx.moveTo(11, 0); ctx.lineTo(18, 2); ctx.lineTo(11, 4);
       ctx.fill();
       // Specular
       ctx.fillStyle = 'rgba(255,255,255,0.2)';
-      ctx.fillRect(1, 0.3, 4, 0.4);
+      ctx.fillRect(1, 0.6, 7, 0.8);
     });
 
     // Flame — orange/yellow flame particle, glowing
@@ -559,22 +558,22 @@ export class WeaponSprites extends SpriteFactory {
       ctx.fill();
     });
 
-    // Heavy bullet — larger caliber pointed round
-    this.createTexture('heavy_bullet', 8, 3, (ctx) => {
-      const grad = ctx.createLinearGradient(0, 0, 6, 0);
+    // Heavy bullet — larger caliber pointed round (14×5)
+    this.createTexture('heavy_bullet', 14, 5, (ctx) => {
+      const grad = ctx.createLinearGradient(0, 0, 10, 0);
       grad.addColorStop(0, '#996633');
       grad.addColorStop(0.5, '#cc9944');
       grad.addColorStop(1, '#886633');
       ctx.fillStyle = grad;
-      ctx.fillRect(0, 0.3, 5, 2.4);
+      ctx.fillRect(0, 0.5, 9, 4);
       // Pointed dark tip
       ctx.fillStyle = '#554433';
       ctx.beginPath();
-      ctx.moveTo(5, 0); ctx.lineTo(8, 1.5); ctx.lineTo(5, 3);
+      ctx.moveTo(9, 0); ctx.lineTo(14, 2.5); ctx.lineTo(9, 5);
       ctx.fill();
       // Specular
       ctx.fillStyle = 'rgba(255,255,255,0.25)';
-      ctx.fillRect(1, 0.3, 3, 0.6);
+      ctx.fillRect(1, 0.5, 6, 1);
     });
 
     // Laser beam — bright red/pink laser line with glow
@@ -988,70 +987,101 @@ export class WeaponSprites extends SpriteFactory {
       ctx.fillRect(18, 14, 1.5, 3);
     });
 
-    // SMG — 44x22 compact SMG with drum magazine, short barrel
-    this._ctw('weapon_smg', 44, 22, (ctx) => {
-      // Stock (wire folding)
-      ctx.strokeStyle = '#555';
-      ctx.lineWidth = 1.5;
+    // SMG — 46x24 PPSh-41 style submachine gun with drum magazine
+    this._ctw('weapon_smg', 46, 24, (ctx) => {
+      // Wooden stock
+      const stockGrad = ctx.createLinearGradient(0, 0, 0, 14);
+      stockGrad.addColorStop(0, '#8B6226');
+      stockGrad.addColorStop(0.5, '#6B4226');
+      stockGrad.addColorStop(1, '#5B3216');
+      ctx.fillStyle = stockGrad;
       ctx.beginPath();
-      ctx.moveTo(0, 5);
-      ctx.lineTo(4, 5);
-      ctx.lineTo(4, 14);
+      ctx.moveTo(0, 6);
+      ctx.lineTo(4, 4);
+      ctx.lineTo(14, 4);
+      ctx.lineTo(14, 14);
+      ctx.lineTo(4, 16);
       ctx.lineTo(0, 14);
-      ctx.stroke();
-      // Receiver
-      const bodyGrad = ctx.createLinearGradient(0, 0, 0, 10);
-      bodyGrad.addColorStop(0, '#666');
-      bodyGrad.addColorStop(0.5, '#555');
-      bodyGrad.addColorStop(1, '#444');
-      ctx.fillStyle = bodyGrad;
-      ctx.fillRect(4, 3, 22, 10);
-      // Barrel shroud with holes
-      ctx.fillStyle = '#555';
-      ctx.fillRect(26, 4, 14, 7);
-      // Cooling holes
-      ctx.fillStyle = '#333';
-      for (let i = 28; i < 39; i += 3) {
+      ctx.closePath();
+      ctx.fill();
+      // Wood grain
+      ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+      ctx.lineWidth = 0.4;
+      for (let i = 2; i < 13; i += 2) {
         ctx.beginPath();
-        ctx.arc(i, 7.5, 1.2, 0, Math.PI * 2);
+        ctx.moveTo(i, 5); ctx.lineTo(i, 15);
+        ctx.stroke();
+      }
+      // Receiver body
+      const recvGrad = ctx.createLinearGradient(0, 0, 0, 12);
+      recvGrad.addColorStop(0, '#5a5a5a');
+      recvGrad.addColorStop(0.5, '#4a4a4a');
+      recvGrad.addColorStop(1, '#3a3a3a');
+      ctx.fillStyle = recvGrad;
+      ctx.fillRect(14, 4, 10, 10);
+      // Perforated barrel shroud
+      const shroudGrad = ctx.createLinearGradient(0, 0, 0, 8);
+      shroudGrad.addColorStop(0, '#555');
+      shroudGrad.addColorStop(1, '#3a3a3a');
+      ctx.fillStyle = shroudGrad;
+      ctx.fillRect(24, 4, 18, 8);
+      // Cooling holes in shroud
+      ctx.fillStyle = '#222';
+      for (let i = 26; i < 41; i += 2.5) {
+        ctx.beginPath();
+        ctx.arc(i, 8, 1, 0, Math.PI * 2);
         ctx.fill();
       }
-      // Barrel extension
-      ctx.fillStyle = '#4a4a4a';
-      ctx.fillRect(40, 5, 4, 5);
-      // Barrel end
+      // Barrel tip
+      ctx.fillStyle = '#444';
+      ctx.fillRect(42, 5.5, 4, 5);
       ctx.fillStyle = '#333';
       ctx.beginPath();
-      ctx.arc(43, 7.5, 1.5, 0, Math.PI * 2);
+      ctx.arc(45, 8, 1.5, 0, Math.PI * 2);
       ctx.fill();
       // Drum magazine
-      ctx.fillStyle = '#4a4a4a';
-      const drumGrad = ctx.createRadialGradient(16, 17, 1, 16, 17, 6);
+      const drumGrad = ctx.createRadialGradient(18, 18, 1, 18, 18, 6);
       drumGrad.addColorStop(0, '#555');
       drumGrad.addColorStop(0.5, '#444');
-      drumGrad.addColorStop(1, '#333');
+      drumGrad.addColorStop(1, '#2a2a2a');
       ctx.fillStyle = drumGrad;
       ctx.beginPath();
-      ctx.arc(16, 17, 5, 0, Math.PI * 2);
+      ctx.arc(18, 18, 5.5, 0, Math.PI * 2);
       ctx.fill();
-      // Drum detail
+      // Drum center rivet
+      ctx.fillStyle = '#666';
+      ctx.beginPath();
+      ctx.arc(18, 18, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+      // Drum ring detail
       ctx.strokeStyle = 'rgba(0,0,0,0.25)';
       ctx.lineWidth = 0.5;
       ctx.beginPath();
-      ctx.arc(16, 17, 3, 0, Math.PI * 2);
+      ctx.arc(18, 18, 3.5, 0, Math.PI * 2);
       ctx.stroke();
       // Charging handle
       ctx.fillStyle = '#666';
-      ctx.fillRect(8, 2, 6, 2);
+      ctx.fillRect(16, 2, 5, 3);
       // Front sight
-      ctx.fillStyle = '#666';
-      ctx.fillRect(38, 2, 2, 3);
-      // Highlight
-      ctx.fillStyle = 'rgba(255,255,255,0.08)';
-      ctx.fillRect(5, 3, 20, 1);
+      ctx.fillStyle = '#555';
+      ctx.fillRect(40, 2, 2, 3);
+      // Rear sight
+      ctx.fillStyle = '#555';
+      ctx.fillRect(22, 2, 3, 3);
+      // Trigger guard
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(18, 14);
+      ctx.quadraticCurveTo(20, 18, 24, 14);
+      ctx.stroke();
       // Trigger
       ctx.fillStyle = '#444';
-      ctx.fillRect(16, 12, 2, 3);
+      ctx.fillRect(20, 13, 2, 3);
+      // Highlight
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.fillRect(14, 4, 10, 1);
+      ctx.fillRect(24, 4, 16, 1);
     });
 
     // Crossbow — 50x28
@@ -1353,103 +1383,127 @@ export class WeaponSprites extends SpriteFactory {
       ctx.fillRect(19, 14, 2, 3);
     });
 
-    // Sniper rifle — 68x18 long sniper with large scope, bipod hints
-    this._ctw('weapon_sniper', 68, 18, (ctx) => {
-      // Stock (thumbhole)
-      const stockGrad = ctx.createLinearGradient(0, 0, 0, 12);
+    this._ctw('weapon_sniper', 72, 20, (ctx) => {
+      // Thumbhole stock
+      const stockGrad = ctx.createLinearGradient(0, 0, 0, 14);
       stockGrad.addColorStop(0, '#555');
       stockGrad.addColorStop(0.5, '#444');
       stockGrad.addColorStop(1, '#333');
       ctx.fillStyle = stockGrad;
-      ctx.fillRect(0, 4, 18, 10);
+      ctx.fillRect(0, 5, 18, 10);
       // Thumbhole cutout
-      ctx.fillStyle = '#222';
+      ctx.fillStyle = '#1a1a1a';
       ctx.beginPath();
-      ctx.ellipse(12, 11, 3, 2.5, 0, 0, Math.PI * 2);
+      ctx.ellipse(12, 12, 3.5, 2.5, 0, 0, Math.PI * 2);
       ctx.fill();
-      // Cheek rest
+      // Cheek rest (raised)
       ctx.fillStyle = '#4a4a4a';
       ctx.beginPath();
-      ctx.moveTo(0, 4);
-      ctx.quadraticCurveTo(4, 1, 10, 4);
+      ctx.moveTo(0, 5);
+      ctx.quadraticCurveTo(4, 1, 12, 4);
+      ctx.lineTo(12, 5);
+      ctx.lineTo(0, 5);
       ctx.fill();
+      // Rubber buttpad
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fillRect(0, 5, 2, 10);
       // Receiver
-      const recvGrad = ctx.createLinearGradient(0, 0, 0, 9);
+      const recvGrad = ctx.createLinearGradient(0, 0, 0, 10);
       recvGrad.addColorStop(0, '#666');
       recvGrad.addColorStop(1, '#444');
       ctx.fillStyle = recvGrad;
-      ctx.fillRect(18, 4, 12, 10);
+      ctx.fillRect(18, 5, 14, 10);
       // Magazine
-      ctx.fillStyle = '#444';
-      ctx.fillRect(22, 14, 8, 4);
+      ctx.fillStyle = '#3a3a3a';
+      ctx.fillRect(22, 15, 8, 5);
+      ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(22, 15, 8, 5);
       // Bolt handle
       ctx.fillStyle = '#666';
-      ctx.fillRect(22, 2, 4, 3);
+      ctx.fillRect(22, 3, 4, 3);
       ctx.beginPath();
-      ctx.arc(26, 3, 1.5, 0, Math.PI * 2);
+      ctx.arc(26, 4, 1.8, 0, Math.PI * 2);
       ctx.fill();
-      // Long barrel
-      const barrelGrad = ctx.createLinearGradient(0, 0, 0, 4);
+      // Long heavy barrel
+      const barrelGrad = ctx.createLinearGradient(0, 0, 0, 5);
       barrelGrad.addColorStop(0, '#666');
       barrelGrad.addColorStop(1, '#444');
       ctx.fillStyle = barrelGrad;
-      ctx.fillRect(30, 5, 34, 4);
+      ctx.fillRect(32, 6, 36, 5);
       // Fluted barrel detail
-      ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+      ctx.strokeStyle = 'rgba(0,0,0,0.12)';
       ctx.lineWidth = 0.5;
-      for (let i = 35; i < 60; i += 3) {
+      for (let i = 36; i < 64; i += 2.5) {
         ctx.beginPath();
-        ctx.moveTo(i, 5); ctx.lineTo(i, 9);
+        ctx.moveTo(i, 6); ctx.lineTo(i, 11);
         ctx.stroke();
       }
-      // Muzzle brake
+      // Muzzle brake (slotted)
       ctx.fillStyle = '#555';
-      ctx.fillRect(64, 4, 4, 6);
-      ctx.fillStyle = '#333';
-      ctx.fillRect(65, 5, 1, 1.5);
-      ctx.fillRect(65, 7.5, 1, 1.5);
+      ctx.fillRect(68, 5, 4, 7);
+      ctx.fillStyle = '#222';
+      ctx.fillRect(69, 6.5, 1, 1.5);
+      ctx.fillRect(69, 9, 1, 1.5);
+      ctx.fillRect(71, 6.5, 1, 1.5);
+      ctx.fillRect(71, 9, 1, 1.5);
       // Scope mount rail
       ctx.fillStyle = '#555';
-      ctx.fillRect(22, 2, 22, 3);
-      // Large scope body
-      ctx.fillStyle = '#333';
-      ctx.fillRect(24, -1, 20, 5);
-      // Scope objective lens (large)
-      ctx.fillStyle = '#226';
+      ctx.fillRect(20, 3, 26, 3);
+      // Large scope tube
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fillRect(22, -1, 24, 5);
+      // Scope turret (windage)
+      ctx.fillStyle = '#444';
+      ctx.fillRect(32, -3, 4, 3);
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 0.3;
       ctx.beginPath();
-      ctx.arc(44, 1.5, 3, 0, Math.PI * 2);
+      ctx.arc(34, -1.5, 1.5, 0, Math.PI * 2);
+      ctx.stroke();
+      // Scope turret (elevation)
+      ctx.fillStyle = '#444';
+      ctx.fillRect(38, -3, 4, 3);
+      // Scope objective lens (large, front)
+      const lensGrad = ctx.createRadialGradient(46, 1.5, 0, 46, 1.5, 3.5);
+      lensGrad.addColorStop(0, '#1a2244');
+      lensGrad.addColorStop(0.7, '#112');
+      lensGrad.addColorStop(1, '#333');
+      ctx.fillStyle = lensGrad;
+      ctx.beginPath();
+      ctx.arc(46, 1.5, 3.5, 0, Math.PI * 2);
       ctx.fill();
-      // Scope eyepiece
-      ctx.fillStyle = '#226';
+      // Scope eyepiece (rear)
+      ctx.fillStyle = '#222';
       ctx.beginPath();
-      ctx.arc(24, 1.5, 2.5, 0, Math.PI * 2);
+      ctx.arc(22, 1.5, 2.8, 0, Math.PI * 2);
       ctx.fill();
       // Scope lens glint
-      ctx.fillStyle = 'rgba(100,150,255,0.35)';
+      ctx.fillStyle = 'rgba(100,150,255,0.4)';
       ctx.beginPath();
-      ctx.arc(44, 1, 1.5, 0, Math.PI * 2);
+      ctx.arc(45.5, 0.5, 1.5, 0, Math.PI * 2);
       ctx.fill();
-      // Scope turrets
-      ctx.fillStyle = '#444';
-      ctx.fillRect(32, -2, 3, 2);
-      ctx.fillRect(36, -2, 3, 2);
-      // Bipod hints (folded)
+      // Bipod (folded against barrel)
       ctx.strokeStyle = '#555';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(48, 9);
-      ctx.lineTo(50, 14);
+      ctx.moveTo(50, 11);
+      ctx.lineTo(52, 17);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(52, 9);
-      ctx.lineTo(54, 14);
+      ctx.moveTo(54, 11);
+      ctx.lineTo(56, 17);
       ctx.stroke();
+      // Bipod feet
+      ctx.fillStyle = '#444';
+      ctx.fillRect(51, 16, 2, 2);
+      ctx.fillRect(55, 16, 2, 2);
       // Barrel highlight
-      ctx.fillStyle = 'rgba(255,255,255,0.08)';
-      ctx.fillRect(30, 5, 32, 1);
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.fillRect(32, 6, 34, 1);
       // Trigger
       ctx.fillStyle = '#444';
-      ctx.fillRect(24, 13, 2, 3);
+      ctx.fillRect(24, 14, 2, 3);
     });
 
     // Flamethrower — 58x26 boxy fuel tank on back, nozzle in front
@@ -1610,83 +1664,144 @@ export class WeaponSprites extends SpriteFactory {
       ctx.fillRect(22, 3, 22, 1.5);
     });
 
-    // Assault rifle — 54x20 modern assault rifle with magazine, rail
-    this._ctw('weapon_assault_rifle', 54, 20, (ctx) => {
-      // Stock (telescoping)
-      const stockGrad = ctx.createLinearGradient(0, 0, 0, 10);
-      stockGrad.addColorStop(0, '#555');
-      stockGrad.addColorStop(1, '#333');
+    this._ctw('weapon_assault_rifle', 56, 22, (ctx) => {
+      // Wooden stock
+      const stockGrad = ctx.createLinearGradient(0, 0, 0, 12);
+      stockGrad.addColorStop(0, '#8B6226');
+      stockGrad.addColorStop(0.5, '#7B5216');
+      stockGrad.addColorStop(1, '#5B3216');
       ctx.fillStyle = stockGrad;
-      ctx.fillRect(0, 4, 12, 10);
-      // Buffer tube
-      ctx.fillStyle = '#4a4a4a';
-      ctx.fillRect(10, 6, 6, 5);
-      // Upper receiver
-      const upperGrad = ctx.createLinearGradient(0, 0, 0, 7);
-      upperGrad.addColorStop(0, '#666');
-      upperGrad.addColorStop(1, '#444');
-      ctx.fillStyle = upperGrad;
-      ctx.fillRect(16, 4, 16, 7);
-      // Lower receiver
-      ctx.fillStyle = '#555';
-      ctx.fillRect(16, 11, 14, 5);
-      // Picatinny rail on top
-      ctx.fillStyle = '#555';
-      ctx.fillRect(16, 2, 22, 3);
-      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-      ctx.lineWidth = 0.5;
-      for (let i = 17; i < 37; i += 1.5) {
-        ctx.beginPath();
-        ctx.moveTo(i, 2); ctx.lineTo(i, 5);
-        ctx.stroke();
-      }
-      // Barrel with handguard
-      ctx.fillStyle = '#555';
-      ctx.fillRect(32, 4, 18, 7);
-      // Handguard vents
-      ctx.fillStyle = '#333';
-      for (let i = 34; i < 48; i += 3.5) {
-        ctx.fillRect(i, 6, 1.5, 3);
-      }
-      // Barrel extension
-      ctx.fillStyle = '#4a4a4a';
-      ctx.fillRect(50, 5, 4, 5);
-      // Barrel end / muzzle
-      ctx.fillStyle = '#333';
-      ctx.fillRect(53, 5, 1, 5);
-      // Flash hider
-      ctx.fillStyle = '#555';
-      ctx.fillRect(52, 4, 2, 7);
-      // Curved magazine
-      ctx.fillStyle = '#444';
       ctx.beginPath();
-      ctx.moveTo(22, 16);
-      ctx.lineTo(30, 16);
-      ctx.lineTo(28, 20);
-      ctx.lineTo(20, 20);
+      ctx.moveTo(0, 7);
+      ctx.lineTo(2, 5);
+      ctx.lineTo(14, 5);
+      ctx.lineTo(14, 14);
+      ctx.lineTo(2, 16);
+      ctx.lineTo(0, 14);
       ctx.closePath();
       ctx.fill();
-      ctx.strokeStyle = '#333';
-      ctx.lineWidth = 0.7;
-      ctx.stroke();
-      // Charging handle
-      ctx.fillStyle = '#666';
-      ctx.fillRect(16, 3, 4, 2);
-      // Ejection port
+      // Stock wood grain
+      ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+      ctx.lineWidth = 0.3;
+      for (let i = 3; i < 13; i += 2) {
+        ctx.beginPath();
+        ctx.moveTo(i, 6); ctx.lineTo(i, 15);
+        ctx.stroke();
+      }
+      // Buttpad
       ctx.fillStyle = '#333';
-      ctx.fillRect(22, 5, 4, 3);
-      // Foregrip
+      ctx.fillRect(0, 7, 2, 7);
+      // Metal receiver
+      const recvGrad = ctx.createLinearGradient(0, 0, 0, 10);
+      recvGrad.addColorStop(0, '#5a5a5a');
+      recvGrad.addColorStop(0.5, '#4a4a4a');
+      recvGrad.addColorStop(1, '#3a3a3a');
+      ctx.fillStyle = recvGrad;
+      ctx.fillRect(14, 4, 16, 10);
+      // Dust cover (top of receiver)
       ctx.fillStyle = '#555';
-      ctx.fillRect(38, 11, 6, 6);
-      // Front sight
+      ctx.fillRect(14, 3, 18, 2);
+      // Selector lever
       ctx.fillStyle = '#666';
-      ctx.fillRect(48, 1, 2, 4);
+      ctx.fillRect(16, 11, 4, 1.5);
+      // Rear sight block
+      ctx.fillStyle = '#555';
+      ctx.fillRect(28, 1, 3, 4);
+      // Gas tube above barrel
+      ctx.fillStyle = '#555';
+      ctx.fillRect(30, 3, 16, 2.5);
+      // Wooden handguard (lower)
+      const hgGrad = ctx.createLinearGradient(0, 0, 0, 6);
+      hgGrad.addColorStop(0, '#8B6226');
+      hgGrad.addColorStop(1, '#6B4216');
+      ctx.fillStyle = hgGrad;
+      ctx.fillRect(30, 7, 16, 5);
+      // Handguard wood grain
+      ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+      for (let i = 32; i < 45; i += 2) {
+        ctx.beginPath();
+        ctx.moveTo(i, 7.5); ctx.lineTo(i, 11.5);
+        ctx.stroke();
+      }
+      // Barrel
+      ctx.fillStyle = '#4a4a4a';
+      ctx.fillRect(46, 5, 6, 4);
+      // Front sight post
+      ctx.fillStyle = '#555';
+      ctx.fillRect(48, 0, 2, 6);
+      // Front sight hood
+      ctx.fillStyle = '#4a4a4a';
+      ctx.beginPath();
+      ctx.moveTo(47, 1);
+      ctx.lineTo(51, 1);
+      ctx.lineTo(51, 2);
+      ctx.lineTo(47, 2);
+      ctx.fill();
+      // Muzzle brake (slant cut)
+      ctx.fillStyle = '#555';
+      ctx.beginPath();
+      ctx.moveTo(52, 4);
+      ctx.lineTo(56, 3);
+      ctx.lineTo(56, 10);
+      ctx.lineTo(52, 9);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#333';
+      ctx.beginPath();
+      ctx.arc(55, 6.5, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+      // Curved banana magazine
+      ctx.fillStyle = '#3a3a3a';
+      ctx.beginPath();
+      ctx.moveTo(20, 14);
+      ctx.lineTo(28, 14);
+      ctx.quadraticCurveTo(29, 18, 27, 22);
+      ctx.lineTo(19, 22);
+      ctx.quadraticCurveTo(18, 18, 20, 14);
+      ctx.closePath();
+      ctx.fill();
+      // Magazine ridges
+      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+      ctx.lineWidth = 0.4;
+      ctx.beginPath();
+      ctx.moveTo(21, 15); ctx.lineTo(20, 21);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(24, 15); ctx.lineTo(23, 21);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(27, 15); ctx.lineTo(26, 21);
+      ctx.stroke();
+      // Pistol grip (wooden)
+      const gripGrad = ctx.createLinearGradient(0, 0, 0, 8);
+      gripGrad.addColorStop(0, '#7B5216');
+      gripGrad.addColorStop(1, '#5B3216');
+      ctx.fillStyle = gripGrad;
+      ctx.fillRect(16, 14, 4, 7);
+      // Grip texture
+      ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+      ctx.lineWidth = 0.3;
+      for (let i = 15; i < 21; i += 1.5) {
+        ctx.beginPath();
+        ctx.moveTo(16.5, i); ctx.lineTo(19.5, i);
+        ctx.stroke();
+      }
+      // Trigger guard
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(17, 14);
+      ctx.quadraticCurveTo(19, 17, 22, 14);
+      ctx.stroke();
       // Trigger
       ctx.fillStyle = '#444';
-      ctx.fillRect(24, 14, 2, 3);
-      // Highlight
-      ctx.fillStyle = 'rgba(255,255,255,0.08)';
-      ctx.fillRect(16, 4, 16, 1);
+      ctx.fillRect(19, 13, 1.5, 3);
+      // Charging handle
+      ctx.fillStyle = '#666';
+      ctx.fillRect(14, 3.5, 4, 2);
+      // Receiver highlight
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.fillRect(14, 4, 16, 1);
     });
 
     // Heavy MG — 60x26 heavy MG, belt-fed, big barrel
@@ -1852,84 +1967,95 @@ export class WeaponSprites extends SpriteFactory {
       ctx.fillRect(22, 13, 2, 3);
     });
 
-    // Minigun — 56x28 multi-barrel rotary gun, motor housing
-    this._ctw('weapon_minigun', 56, 28, (ctx) => {
+    // Minigun — 58x28 multi-barrel rotary gun with visible barrel cluster
+    this._ctw('weapon_minigun', 58, 28, (ctx) => {
       // Motor housing (rear cylinder)
-      const motorGrad = ctx.createLinearGradient(0, 0, 0, 18);
+      const motorGrad = ctx.createRadialGradient(10, 14, 2, 10, 14, 9);
       motorGrad.addColorStop(0, '#666');
       motorGrad.addColorStop(0.5, '#555');
-      motorGrad.addColorStop(1, '#444');
+      motorGrad.addColorStop(1, '#3a3a3a');
       ctx.fillStyle = motorGrad;
       ctx.beginPath();
-      ctx.ellipse(8, 14, 7, 10, 0, 0, Math.PI * 2);
+      ctx.ellipse(10, 14, 8, 10, 0, 0, Math.PI * 2);
       ctx.fill();
-      // Motor detail
-      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-      ctx.lineWidth = 0.6;
-      ctx.beginPath();
-      ctx.arc(8, 14, 5, 0, Math.PI * 2);
-      ctx.stroke();
+      // Motor rivets
+      ctx.fillStyle = '#777';
+      const rivetAngles = [0, 1.05, 2.09, 3.14, 4.19, 5.24];
+      rivetAngles.forEach(a => {
+        ctx.beginPath();
+        ctx.arc(10 + Math.cos(a) * 6, 14 + Math.sin(a) * 7, 0.7, 0, Math.PI * 2);
+        ctx.fill();
+      });
       // Drive shaft housing
-      ctx.fillStyle = '#555';
-      ctx.fillRect(14, 8, 8, 12);
-      // Multiple barrels (6 barrels in a circle pattern)
-      const barrelOffsets = [
-        { y: 8 }, { y: 11 }, { y: 14 },
-        { y: 17 }, { y: 20 }, { y: 5 }
-      ];
-      barrelOffsets.forEach((b) => {
+      ctx.fillStyle = '#4a4a4a';
+      ctx.fillRect(16, 7, 8, 14);
+      // 6 barrels in circular arrangement
+      const cx = 42, cy = 13;
+      const barrelR = 5;
+      for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2;
+        const by = cy + Math.sin(angle) * barrelR;
         const bGrad = ctx.createLinearGradient(22, 0, 56, 0);
         bGrad.addColorStop(0, '#666');
-        bGrad.addColorStop(1, '#555');
+        bGrad.addColorStop(0.5, '#5a5a5a');
+        bGrad.addColorStop(1, '#4a4a4a');
         ctx.fillStyle = bGrad;
-        ctx.fillRect(22, b.y, 32, 2);
-        // Barrel end
-        ctx.fillStyle = '#333';
-        ctx.fillRect(53, b.y, 1, 2);
-      });
-      // Barrel clamp ring - front
-      ctx.fillStyle = '#666';
-      ctx.fillRect(46, 4, 3, 20);
-      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+        ctx.fillRect(22, by - 1, 34, 2);
+        // Dark barrel bore
+        ctx.fillStyle = '#222';
+        ctx.beginPath();
+        ctx.arc(56, by, 0.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Front barrel clamp
+      ctx.fillStyle = '#5a5a5a';
+      ctx.fillRect(48, cy - barrelR - 2, 4, barrelR * 2 + 4);
+      ctx.strokeStyle = 'rgba(0,0,0,0.3)';
       ctx.lineWidth = 0.5;
-      ctx.strokeRect(46, 4, 3, 20);
-      // Barrel clamp ring - rear
-      ctx.fillStyle = '#666';
-      ctx.fillRect(28, 4, 3, 20);
-      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-      ctx.strokeRect(28, 4, 3, 20);
-      // Muzzle flash suppressor ring
+      ctx.strokeRect(48, cy - barrelR - 2, 4, barrelR * 2 + 4);
+      // Rear barrel clamp
+      ctx.fillStyle = '#5a5a5a';
+      ctx.fillRect(30, cy - barrelR - 2, 4, barrelR * 2 + 4);
+      ctx.strokeRect(30, cy - barrelR - 2, 4, barrelR * 2 + 4);
+      // Front muzzle ring
       ctx.strokeStyle = '#555';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(54, 13, 8, 0, Math.PI * 2);
+      ctx.arc(56, cy, barrelR + 3, 0, Math.PI * 2);
       ctx.stroke();
-      // Handle/grip top
+      // Top carry handle
       ctx.fillStyle = '#555';
-      ctx.fillRect(18, 0, 10, 5);
+      ctx.beginPath();
+      ctx.moveTo(18, 4);
+      ctx.lineTo(22, 0);
+      ctx.lineTo(30, 0);
+      ctx.lineTo(34, 4);
+      ctx.lineTo(30, 3);
+      ctx.lineTo(22, 3);
+      ctx.closePath();
+      ctx.fill();
+      // Bottom pistol grip
       ctx.fillStyle = '#444';
-      ctx.fillRect(20, 1, 6, 3);
-      // Grip bottom
-      ctx.fillStyle = '#555';
-      ctx.fillRect(14, 22, 8, 6);
+      ctx.fillRect(16, 22, 8, 6);
       ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-      for (let i = 24; i < 28; i += 2) {
+      ctx.lineWidth = 0.5;
+      for (let i = 24; i < 28; i += 1.5) {
         ctx.beginPath();
-        ctx.moveTo(15, i); ctx.lineTo(21, i);
+        ctx.moveTo(17, i); ctx.lineTo(23, i);
         ctx.stroke();
       }
       // Trigger
-      ctx.fillStyle = '#444';
-      ctx.fillRect(17, 21, 2, 3);
-      // Ammo feed
+      ctx.fillStyle = '#333';
+      ctx.fillRect(19, 21, 2, 3);
+      // Ammo belt feed
       ctx.fillStyle = '#cc9900';
-      ctx.fillRect(10, 22, 4, 4);
+      ctx.fillRect(12, 22, 4, 5);
       ctx.fillStyle = '#ddaa00';
-      ctx.fillRect(10, 22, 3, 3);
-      // Highlight
-      ctx.fillStyle = 'rgba(255,255,255,0.06)';
-      ctx.fillRect(22, 8, 30, 1);
-      ctx.fillRect(22, 14, 30, 1);
+      ctx.fillRect(12, 22, 3, 2);
+      ctx.fillRect(12, 25, 3, 2);
+      // Highlight on barrels
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.fillRect(22, cy - barrelR, 32, 1);
     });
 
     // RPG launcher — 64x26 wider tube than rocket launcher
@@ -2395,6 +2521,28 @@ export class WeaponSprites extends SpriteFactory {
       // Highlight
       ctx.fillStyle = 'rgba(255,255,255,0.08)';
       ctx.fillRect(7, 5, 20, 1);
+    });
+
+    // Crosshair — 12x12 circle with cross lines
+    this.createTexture('crosshair', 12, 12, (ctx) => {
+      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+      ctx.lineWidth = 1;
+      // Circle
+      ctx.beginPath();
+      ctx.arc(6, 6, 5, 0, Math.PI * 2);
+      ctx.stroke();
+      // Cross lines
+      ctx.beginPath();
+      ctx.moveTo(6, 0); ctx.lineTo(6, 3);
+      ctx.moveTo(6, 9); ctx.lineTo(6, 12);
+      ctx.moveTo(0, 6); ctx.lineTo(3, 6);
+      ctx.moveTo(9, 6); ctx.lineTo(12, 6);
+      ctx.stroke();
+      // Center dot
+      ctx.fillStyle = 'rgba(255,50,50,0.8)';
+      ctx.beginPath();
+      ctx.arc(6, 6, 1, 0, Math.PI * 2);
+      ctx.fill();
     });
   }
 }

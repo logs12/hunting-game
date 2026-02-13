@@ -1,39 +1,41 @@
-const tg = window.Telegram?.WebApp;
+import type { TelegramWebApp, HapticType } from './types';
 
-export function initTelegram() {
+const tg: TelegramWebApp | undefined = window.Telegram?.WebApp;
+
+export function initTelegram(): void {
   if (!tg) return;
   tg.ready();
   tg.expand();
 
   // Методы новых версий API могут выбросить ошибку в старых клиентах
-  const safeTry = (fn) => { try { fn(); } catch (e) { /* unsupported in this client */ } };
+  const safeTry = (fn: () => void): void => { try { fn(); } catch (e) { /* unsupported in this client */ } };
 
-  safeTry(() => tg.requestFullscreen());
+  safeTry(() => tg!.requestFullscreen?.());
   // Allow rotation — landscape is supported
   // safeTry(() => tg.lockOrientation());
-  safeTry(() => tg.disableVerticalSwipes());
-  safeTry(() => tg.enableClosingConfirmation());
+  safeTry(() => tg!.disableVerticalSwipes?.());
+  safeTry(() => tg!.enableClosingConfirmation?.());
 }
 
-export function getUserName() {
+export function getUserName(): string {
   return tg?.initDataUnsafe?.user?.first_name || 'Hunter';
 }
 
-export function getUserId() {
+export function getUserId(): number | null {
   return tg?.initDataUnsafe?.user?.id || null;
 }
 
-export function getTheme() {
+export function getTheme(): string {
   if (!tg) return 'dark';
   return tg.colorScheme || 'dark';
 }
 
-export function isTelegram() {
+export function isTelegram(): boolean {
   return !!tg;
 }
 
 // Пауза/возобновление игры при сворачивании Telegram
-export function onVisibilityChange(onPause, onResume) {
+export function onVisibilityChange(onPause: () => void, onResume: () => void): void {
   if (!tg) return;
   if (tg.onEvent) {
     tg.onEvent('deactivated', onPause);
@@ -41,23 +43,23 @@ export function onVisibilityChange(onPause, onResume) {
   }
 }
 
-export function disableClosingConfirmation() {
-  try { tg?.disableClosingConfirmation(); } catch (e) { /* unsupported */ }
+export function disableClosingConfirmation(): void {
+  try { tg?.disableClosingConfirmation?.(); } catch (e) { /* unsupported */ }
 }
 
-export function enableClosingConfirmation() {
-  try { tg?.enableClosingConfirmation(); } catch (e) { /* unsupported */ }
+export function enableClosingConfirmation(): void {
+  try { tg?.enableClosingConfirmation?.(); } catch (e) { /* unsupported */ }
 }
 
 // Сохранение/загрузка рекордов через Telegram CloudStorage
-export function cloudSaveScore(score) {
+export function cloudSaveScore(score: number): void {
   try {
     if (!tg?.CloudStorage) return;
     tg.CloudStorage.setItem('highscore', score.toString(), () => {});
   } catch (e) { /* CloudStorage unsupported */ }
 }
 
-export function cloudLoadScore(callback) {
+export function cloudLoadScore(callback: (score: number) => void): void {
   try {
     if (!tg?.CloudStorage) { callback(0); return; }
     tg.CloudStorage.getItem('highscore', (err, value) => {
@@ -67,7 +69,7 @@ export function cloudLoadScore(callback) {
 }
 
 // Haptic feedback
-export function haptic(type) {
+export function haptic(type: HapticType): void {
   if (!tg?.HapticFeedback) return;
   switch (type) {
     case 'shoot':

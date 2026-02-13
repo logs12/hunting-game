@@ -1,7 +1,12 @@
 import Phaser from 'phaser';
-import { GAME } from '../constants.js';
+import { GAME } from '../constants';
 
 export class PauseScene extends Phaser.Scene {
+  overlay!: Phaser.GameObjects.Rectangle;
+  pauseText!: Phaser.GameObjects.Text;
+  keyP?: Phaser.Input.Keyboard.Key;
+  keyEsc?: Phaser.Input.Keyboard.Key;
+
   constructor() {
     super('Pause');
   }
@@ -53,7 +58,7 @@ export class PauseScene extends Phaser.Scene {
     }
   }
 
-  _resume() {
+  _resume(): void {
     this.scene.resume('Game');
     this.scene.stop();
   }
