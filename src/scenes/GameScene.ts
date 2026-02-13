@@ -58,6 +58,7 @@ export class GameScene extends Phaser.Scene {
         const muted = this.soundManager.toggleMute();
         this.hud.updateMuteButton(muted);
       },
+      onReload: () => this.weaponSystem.reload(),
     });
 
 

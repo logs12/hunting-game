@@ -5,6 +5,14 @@ import type { TouchControlCallbacks } from '../types';
 const MOVE_SPEED = 300;
 const SHOP_HEIGHT = 65;
 const DRAG_THRESHOLD = 5;
+const ZONE_SPLIT_X = 144;
+
+interface PointerState {
+  zone: 'move' | 'fire' | 'shop';
+  startX: number;
+  startY: number;
+  hunterStartY: number;
+}
 
 export class TouchControls {
   scene: Phaser.Scene;
@@ -16,7 +24,6 @@ export class TouchControls {
   onSwitchWeapon: () => void;
   onReload: () => void;
   onWeaponTap?: (key: string) => void;
-  touching: boolean;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys | null;
   keyW: Phaser.Input.Keyboard.Key | null;
   keyS: Phaser.Input.Keyboard.Key | null;
@@ -26,12 +33,20 @@ export class TouchControls {
   keyQ: Phaser.Input.Keyboard.Key | null;
   keyR: Phaser.Input.Keyboard.Key | null;
 
+  // Per-pointer tracking
+  _pointers: Map<number, PointerState>;
+
   // Shop drag tracking
   _shopDragStartX: number;
   _shopDragging: boolean;
-  _shopPointerDown: boolean;
   _shopScrollStart: number;
-  _shopPointerX: number;
+
+  // Virtual joystick indicator
+  _joystickBg: Phaser.GameObjects.Arc;
+  _joystickThumb: Phaser.GameObjects.Arc;
+
+  // Zone hint
+  _zoneHintShown: boolean;
 
   constructor(scene: Phaser.Scene, { onMoveTo, onMoveBy, onMoveToXY, onMoveByX, onFire, onSwitchWeapon, onReload, onWeaponTap }: TouchControlCallbacks) {
     this.scene = scene;
@@ -43,59 +58,135 @@ export class TouchControls {
     this.onSwitchWeapon = onSwitchWeapon;
     this.onReload = onReload;
     this.onWeaponTap = onWeaponTap;
-    this.touching = false;
+
+    this._pointers = new Map();
     this._shopDragStartX = 0;
     this._shopDragging = false;
-    this._shopPointerDown = false;
     this._shopScrollStart = 0;
-    this._shopPointerX = 0;
+    this._zoneHintShown = false;
+
+    // Virtual joystick indicator (hidden by default)
+    this._joystickBg = scene.add.circle(0, 0, 30, 0xffffff, 0.15);
+    this._joystickBg.setDepth(24);
+    this._joystickBg.setVisible(false);
+
+    this._joystickThumb = scene.add.circle(0, 0, 12, 0xffffff, 0.3);
+    this._joystickThumb.setDepth(24);
+    this._joystickThumb.setVisible(false);
 
     // --- Touch/Mouse ---
     scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      const id = pointer.id;
+
+      // Shop zone
       if (pointer.y > GAME.HEIGHT - SHOP_HEIGHT) {
-        // Shop zone — start drag tracking
-        this._shopPointerDown = true;
+        this._pointers.set(id, {
+          zone: 'shop',
+          startX: pointer.x,
+          startY: pointer.y,
+          hunterStartY: 0,
+        });
         this._shopDragging = false;
         this._shopDragStartX = pointer.x;
-        this._shopPointerX = pointer.x;
-        // Get current scroll offset from HUD
         const hud = (scene as any).hud;
         this._shopScrollStart = hud?.scrollOffset ?? 0;
         return;
       }
-      this.touching = true;
+
+      // Show zone hint on first touch
+      if (!this._zoneHintShown) {
+        this._zoneHintShown = true;
+        this._showZoneHint();
+      }
+
+      // Movement zone (left)
+      if (pointer.x < ZONE_SPLIT_X) {
+        const hunter = (scene as any).hunter;
+        const hunterY = hunter?.sprite?.y ?? GAME.HEIGHT / 2;
+        this._pointers.set(id, {
+          zone: 'move',
+          startX: pointer.x,
+          startY: pointer.y,
+          hunterStartY: hunterY,
+        });
+        // Show joystick at touch point
+        this._joystickBg.setPosition(pointer.x, pointer.y);
+        this._joystickBg.setVisible(true);
+        this._joystickThumb.setPosition(pointer.x, pointer.y);
+        this._joystickThumb.setVisible(true);
+        return;
+      }
+
+      // Fire zone (right)
+      const hunter = (scene as any).hunter;
+      const hunterY = hunter?.sprite?.y ?? GAME.HEIGHT / 2;
+      this._pointers.set(id, {
+        zone: 'fire',
+        startX: pointer.x,
+        startY: pointer.y,
+        hunterStartY: hunterY,
+      });
       this.onFire();
     });
 
     scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-      if (!this._shopPointerDown) return;
-      const deltaX = pointer.x - this._shopDragStartX;
-      if (Math.abs(deltaX) > DRAG_THRESHOLD) {
-        this._shopDragging = true;
+      const id = pointer.id;
+      const state = this._pointers.get(id);
+      if (!state) return;
+
+      if (state.zone === 'shop') {
+        const deltaX = pointer.x - this._shopDragStartX;
+        if (Math.abs(deltaX) > DRAG_THRESHOLD) {
+          this._shopDragging = true;
+        }
+        if (this._shopDragging) {
+          const hud = (scene as any).hud;
+          if (hud?.setScrollOffset) {
+            hud.setScrollOffset(this._shopScrollStart - deltaX);
+          }
+        }
+        return;
       }
-      if (this._shopDragging) {
-        const hud = (scene as any).hud;
-        if (hud?.setScrollOffset) {
-          hud.setScrollOffset(this._shopScrollStart - deltaX);
+
+      if (state.zone === 'move') {
+        const deltaY = pointer.y - state.startY;
+        const targetY = state.hunterStartY + deltaY;
+        this.onMoveTo(targetY);
+        // Update joystick thumb position
+        this._joystickThumb.setPosition(pointer.x, pointer.y);
+        return;
+      }
+
+      if (state.zone === 'fire') {
+        // Hybrid: drag in fire zone also moves hunter
+        const deltaY = pointer.y - state.startY;
+        if (Math.abs(deltaY) > DRAG_THRESHOLD) {
+          const targetY = state.hunterStartY + deltaY;
+          this.onMoveTo(targetY);
         }
       }
-      this._shopPointerX = pointer.x;
     });
 
     scene.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      if (this._shopPointerDown) {
+      const id = pointer.id;
+      const state = this._pointers.get(id);
+
+      if (state?.zone === 'shop') {
         if (!this._shopDragging && this.onWeaponTap) {
-          // Tap — determine which weapon was tapped
           const hud = (scene as any).hud;
           if (hud?.getWeaponAtX) {
             const key = hud.getWeaponAtX(pointer.x);
             if (key) this.onWeaponTap(key);
           }
         }
-        this._shopPointerDown = false;
-        this._shopDragging = false;
       }
-      this.touching = false;
+
+      if (state?.zone === 'move') {
+        this._joystickBg.setVisible(false);
+        this._joystickThumb.setVisible(false);
+      }
+
+      this._pointers.delete(id);
     });
 
     // --- Keyboard ---
@@ -121,12 +212,28 @@ export class TouchControls {
     }
   }
 
+  _showZoneHint(): void {
+    const hint = this.scene.add.rectangle(ZONE_SPLIT_X, GAME.HEIGHT / 2, 2, GAME.HEIGHT - SHOP_HEIGHT, 0xffffff, 0.08);
+    hint.setOrigin(0.5);
+    hint.setDepth(24);
+    this.scene.time.delayedCall(3000, () => {
+      this.scene.tweens.add({
+        targets: hint,
+        alpha: 0,
+        duration: 500,
+        onComplete: () => hint.destroy(),
+      });
+    });
+  }
+
   update(time: number, delta: number): void {
     const dt = delta / 1000;
 
-    // Touch hold: continuous fire (for auto weapons)
-    if (this.touching) {
-      this.onFire();
+    // Continuous fire for active fire-zone pointers
+    for (const [, state] of this._pointers) {
+      if (state.zone === 'fire') {
+        this.onFire();
+      }
     }
 
     // Keyboard
@@ -156,6 +263,8 @@ export class TouchControls {
   }
 
   destroy(): void {
-    // Phaser очищает keyboard при остановке сцены
+    this._joystickBg.destroy();
+    this._joystickThumb.destroy();
+    this._pointers.clear();
   }
 }

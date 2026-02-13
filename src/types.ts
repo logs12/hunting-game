@@ -107,4 +107,5 @@ export interface TouchControlCallbacks {
 export interface HUDCallbacks {
   onPause?: () => void;
   onToggleMute?: () => void;
+  onReload?: () => void;
 }

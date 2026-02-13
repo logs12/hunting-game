@@ -22,6 +22,7 @@ export class HUD {
   comboText: Phaser.GameObjects.Text;
   ammoText: Phaser.GameObjects.Text;
   reloadBar: Phaser.GameObjects.Rectangle;
+  reloadBtn: Phaser.GameObjects.Text;
   _reloadTween: Phaser.Tweens.Tween | null;
   _unlockedSet: Set<string>;
   crosshairAmmoText: Phaser.GameObjects.Text;
@@ -32,7 +33,7 @@ export class HUD {
   _shopSlots: ShopSlot[];
   scrollOffset: number;
 
-  constructor(scene: Phaser.Scene, { onPause, onToggleMute }: HUDCallbacks = {}) {
+  constructor(scene: Phaser.Scene, { onPause, onToggleMute, onReload }: HUDCallbacks = {}) {
     this.scene = scene;
     this._unlockedSet = new Set<string>();
 
@@ -112,6 +113,24 @@ export class HUD {
     this.reloadBar.setDepth(101);
     this.reloadBar.setVisible(false);
     this._reloadTween = null;
+
+    // Reload button (mobile)
+    this.reloadBtn = scene.add.text(330, 55, 'R', {
+      fontFamily: 'monospace',
+      fontSize: '16px',
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 3,
+      backgroundColor: '#333333',
+      padding: { x: 6, y: 4 },
+    });
+    this.reloadBtn.setOrigin(0.5);
+    this.reloadBtn.setDepth(27);
+    this.reloadBtn.setAlpha(0.4);
+    this.reloadBtn.setInteractive({ useHandCursor: true });
+    this.reloadBtn.on('pointerdown', () => {
+      if (onReload) onReload();
+    });
 
     // Crosshair ammo text — follows crosshair position
     this.crosshairAmmoText = scene.add.text(0, 0, '', {
@@ -392,6 +411,7 @@ export class HUD {
     }
     this.ammoText.destroy();
     this.reloadBar.destroy();
+    this.reloadBtn.destroy();
     this.crosshairAmmoText.destroy();
     this.moneyText.destroy();
     if (this._reloadTween) this._reloadTween.destroy();
